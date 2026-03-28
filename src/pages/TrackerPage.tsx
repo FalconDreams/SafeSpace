@@ -8,7 +8,7 @@ export const TrackerPage: React.FC = () => {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Landlord Response Tracker</h1>
-        <p className="mt-2 text-lg text-gray-600">
+        <p className="mt-2 text-lg text-text-muted">
           Track response times and ensure compliance with legal deadlines
         </p>
       </div>
@@ -24,11 +24,11 @@ export const TrackerPage: React.FC = () => {
         </div>
       </div>
 
-      <Card className="bg-primary-50 border-primary-200">
-        <h3 className="text-lg font-semibold text-primary-900 mb-2">
+      <Card className="bg-teal-50 border-teal-200">
+        <h3 className="text-lg font-semibold text-teal-900 mb-2">
           Know Your Rights
         </h3>
-        <div className="space-y-2 text-sm text-primary-800">
+        <div className="space-y-2 text-sm text-teal-800">
           <p>
             • <strong>24-hour issues:</strong> No heat (below 40°F), no water, gas leaks, sewage backup
           </p>

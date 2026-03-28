@@ -1,91 +1,118 @@
-import React from 'react';
 import { Card } from '../../common';
-import type { Property } from '../../../types';
+import type { Report, Comment as DbComment, Rebuttal } from '../../../types/database';
 
 interface PropertyDetailsProps {
-  property: Property;
+  address: string;
+  reports: Report[];
+  comments: DbComment[];
+  rebuttals: Rebuttal[];
 }
 
-export const PropertyDetails: React.FC<PropertyDetailsProps> = ({ property }) => {
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case 'Resolved':
-        return 'text-green-600 bg-green-50';
-      case 'Pending':
-        return 'text-yellow-600 bg-yellow-50';
-      case 'Unresolved':
-        return 'text-red-600 bg-red-50';
-      default:
-        return 'text-gray-600 bg-gray-50';
-    }
+export function PropertyDetails({ address, reports, comments, rebuttals }: PropertyDetailsProps) {
+  const issueLabels: Record<string, string> = {
+    mold: 'Mold',
+    radon: 'Radon',
+    'carbon-monoxide': 'Carbon Monoxide',
+    heating: 'Heating',
+    electrical: 'Electrical',
+    plumbing: 'Plumbing',
+    structural: 'Structural',
+    pests: 'Pests',
+    other: 'Other',
   };
 
-  const getLicenseColor = (status?: string) => {
-    switch (status) {
-      case 'Active':
-        return 'text-green-600';
-      case 'Expired':
-        return 'text-red-600';
-      case 'Revoked':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
-    }
+  const severityConfig: Record<string, { label: string; className: string }> = {
+    emergency_24h: { label: '24hr Emergency', className: 'bg-red-100 text-red-700' },
+    urgent_72h: { label: '72hr Urgent', className: 'bg-amber-100 text-amber-700' },
+    standard: { label: 'Standard', className: 'bg-blue-100 text-blue-700' },
   };
+
+  const getRebuttalForReport = (reportId: string) =>
+    rebuttals.find((r) => r.report_id === reportId);
 
   return (
-    <Card>
-      <div className="space-y-6">
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900">{property.address}</h2>
-          {property.landlord && <p className="mt-1 text-gray-600">Landlord: {property.landlord}</p>}
+    <div className="space-y-6">
+      <div>
+        <h2 className="text-2xl font-bold text-text">{address}</h2>
+        <div className="mt-2 flex gap-4 text-sm text-text-muted">
+          <span>{reports.length} report{reports.length !== 1 ? 's' : ''}</span>
+          <span>{comments.length} comment{comments.length !== 1 ? 's' : ''}</span>
         </div>
-
-        <div className="grid gap-4 md:grid-cols-3">
-          <div className="text-center">
-            <p className="text-sm text-gray-500">License Status</p>
-            <p className={`text-lg font-semibold ${getLicenseColor(property.licenseStatus)}`}>
-              {property.licenseStatus || 'Unknown'}
-            </p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-500">Total Violations</p>
-            <p className="text-2xl font-bold text-gray-900">{property.violations.length}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-sm text-gray-500">Unresolved Issues</p>
-            <p className="text-2xl font-bold text-red-600">
-              {property.violations.filter((v) => v.status === 'Unresolved').length}
-            </p>
-          </div>
-        </div>
-
-        {property.violations.length > 0 && (
-          <div>
-            <h3 className="mb-3 text-lg font-semibold text-gray-900">Violation History</h3>
-            <div className="space-y-3">
-              {property.violations.map((violation, index) => (
-                <div key={index} className="rounded-lg border p-4">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <p className="font-medium text-gray-900">{violation.type}</p>
-                      <p className="mt-1 text-sm text-gray-600">{violation.description}</p>
-                      <p className="mt-2 text-xs text-gray-500">
-                        Reported: {new Date(violation.date).toLocaleDateString()}
-                      </p>
-                    </div>
-                    <span
-                      className={`ml-3 inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(violation.status)}`}
-                    >
-                      {violation.status}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
       </div>
-    </Card>
+
+      {reports.length === 0 ? (
+        <Card className="py-8 text-center">
+          <p className="text-text-muted">No reports filed for this property yet.</p>
+          <p className="mt-1 text-sm text-text-muted">Be the first to report an issue.</p>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-text">Reports Timeline</h3>
+          {reports.map((report) => {
+            const rebuttal = getRebuttalForReport(report.id);
+            const severity = severityConfig[report.severity] || severityConfig.standard;
+
+            return (
+              <Card key={report.id}>
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="font-medium text-text">
+                        {issueLabels[report.issue_type] || report.issue_type}
+                      </span>
+                      <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${severity.className}`}>
+                        {severity.label}
+                      </span>
+                    </div>
+                    <time className="text-sm text-text-muted">
+                      {new Date(report.created_at).toLocaleDateString()}
+                    </time>
+                  </div>
+
+                  <p className="text-text-muted">{report.description}</p>
+
+                  {report.photo_urls && report.photo_urls.length > 0 && (
+                    <div className="flex gap-2 overflow-x-auto">
+                      {report.photo_urls.map((url, i) => (
+                        <img
+                          key={i}
+                          src={url}
+                          alt={`Evidence ${i + 1}`}
+                          className="h-20 w-20 rounded-lg object-cover"
+                          loading="lazy"
+                        />
+                      ))}
+                    </div>
+                  )}
+
+                  {report.is_anonymous && (
+                    <p className="text-xs text-text-muted italic">Reported anonymously</p>
+                  )}
+
+                  {rebuttal && (
+                    <div className="mt-3 rounded-lg border border-teal-200 bg-teal-50 p-4">
+                      <div className="mb-2 flex items-center gap-2">
+                        <span className="inline-flex items-center rounded-full bg-teal-100 px-2.5 py-0.5 text-xs font-medium text-teal-700">
+                          Landlord Response
+                        </span>
+                        {rebuttal.is_verified && (
+                          <span className="inline-flex items-center rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-700">
+                            Verified Owner
+                          </span>
+                        )}
+                        <time className="ml-auto text-xs text-text-muted">
+                          {new Date(rebuttal.created_at).toLocaleDateString()}
+                        </time>
+                      </div>
+                      <p className="text-sm text-teal-900">{rebuttal.body}</p>
+                    </div>
+                  )}
+                </div>
+              </Card>
+            );
+          })}
+        </div>
+      )}
+    </div>
   );
-};
+}

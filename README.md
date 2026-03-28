@@ -1,69 +1,41 @@
-# React + TypeScript + Vite
+# SafeSpace
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+SafeSpace is a renter-focused reporting tool for Boulder housing health and safety issues.
 
-Currently, two official plugins are available:
+## What it does
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Guides renters through emergency and non-emergency issue reporting
+- Lets users submit reports with optional anonymous display
+- Publishes reports to on-chain infrastructure for durable public records
+- Supports landlord rebuttals with transparent, paired context
 
-## Expanding the ESLint configuration
+## Privacy and trust model (important)
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+SafeSpace is designed to reduce takedown and tampering risk, but it is **not** a guarantee of perfect anonymity, uncensorability, or untraceability.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+Using the app can involve third-party services (for example Privy, Stripe, RPC providers, gateways, and hosting/CDN layers) that may process metadata such as IP address, timestamps, device/browser details, and transaction data. On-chain transactions are public by default.
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
+For explicit trust boundaries and data flow, see:
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+- `CONTROL_CENTER/policies/privacy-threat-model.md`
+
+## Local development
+
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Build
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+```bash
+npm run build
+npm run preview
+```
 
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## Smart contracts
+
+```bash
+npx hardhat compile
+npx hardhat test
 ```

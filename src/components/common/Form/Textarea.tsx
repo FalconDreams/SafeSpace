@@ -1,47 +1,34 @@
-import React from 'react';
+import type { TextareaHTMLAttributes } from 'react';
 
-interface TextareaProps extends React.TextareaHTMLAttributes<HTMLTextAreaElement> {
+interface TextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
   label?: string;
   error?: string;
   helperText?: string;
 }
 
-export const Textarea: React.FC<TextareaProps> = ({
-  label,
-  error,
-  helperText,
-  className = '',
-  id,
-  ...props
-}) => {
+export function Textarea({ label, error, helperText, className = '', id, ...props }: TextareaProps) {
   const textareaId = id || `textarea-${Math.random().toString(36).substr(2, 9)}`;
-  
+
   return (
-    <div className="space-y-1">
+    <div className="space-y-1.5">
       {label && (
-        <label htmlFor={textareaId} className="block text-sm font-medium text-gray-700">
+        <label htmlFor={textareaId} className="block text-sm font-medium text-text">
           {label}
         </label>
       )}
       <textarea
         id={textareaId}
-        className={`
-          block w-full rounded-md border px-3 py-2 text-gray-900 shadow-sm
-          ${error 
-            ? 'border-red-300 focus:border-red-500 focus:ring-red-500' 
-            : 'border-gray-300 focus:border-primary-500 focus:ring-primary-500'
-          }
-          placeholder:text-gray-400 focus:outline-none focus:ring-2 sm:text-sm
-          ${className}
-        `}
+        className={`block w-full rounded-lg border bg-surface px-4 py-3 text-text shadow-sm placeholder:text-text-muted focus:outline-none focus:ring-2 sm:text-sm ${
+          error
+            ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
+            : 'border-border focus:border-teal-500 focus:ring-teal-500/20'
+        } ${className}`}
         rows={4}
         {...props}
       />
       {(error || helperText) && (
-        <p className={`text-sm ${error ? 'text-red-600' : 'text-gray-500'}`}>
-          {error || helperText}
-        </p>
+        <p className={`text-sm ${error ? 'text-danger' : 'text-text-muted'}`}>{error || helperText}</p>
       )}
     </div>
   );
-};
+}

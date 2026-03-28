@@ -8,21 +8,21 @@ export const KnowYourRightsPage: React.FC = () => {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Know Your Rights</h1>
-        <p className="mt-2 text-lg text-gray-600">
+        <p className="mt-2 text-lg text-text-muted">
           Understanding Boulder County's 2024 enhanced tenant protections
         </p>
       </div>
 
-      <Card className="bg-primary-50 border-primary-200">
+      <Card className="bg-teal-50 border-teal-200">
         <div className="flex items-start space-x-3">
           <div className="flex-shrink-0">
-            <svg className="h-6 w-6 text-primary-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="h-6 w-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
             </svg>
           </div>
           <div>
-            <h3 className="text-lg font-medium text-primary-900">2024 Enhanced Protections</h3>
-            <p className="mt-1 text-primary-800">
+            <h3 className="text-lg font-medium text-teal-900">2024 Enhanced Protections</h3>
+            <p className="mt-1 text-teal-800">
               Boulder County strengthened tenant rights in 2024 with stricter mold remediation requirements, 
               faster repair deadlines, and increased penalties for landlord violations.
             </p>
@@ -39,19 +39,19 @@ export const KnowYourRightsPage: React.FC = () => {
         <SuccessStories />
       </div>
 
-      <Card className="bg-gray-50">
+      <Card className="bg-surface-muted">
         <h3 className="text-lg font-semibold text-gray-900 mb-4">Need Legal Help?</h3>
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
               <h4 className="font-medium text-gray-900">Colorado Legal Aid</h4>
-              <p className="text-sm text-gray-600">Free legal assistance for qualifying tenants</p>
-              <a href="tel:3038371313" className="text-primary-600 hover:underline">(303) 837-1313</a>
+              <p className="text-sm text-text-muted">Free legal assistance for qualifying tenants</p>
+              <a href="tel:3038371313" className="text-teal-600 hover:underline">(303) 837-1313</a>
             </div>
             <div>
               <h4 className="font-medium text-gray-900">CU Boulder Legal Clinic</h4>
-              <p className="text-sm text-gray-600">Free consultations for students</p>
-              <a href="tel:3034926813" className="text-primary-600 hover:underline">(303) 492-6813</a>
+              <p className="text-sm text-text-muted">Free consultations for students</p>
+              <a href="tel:3034926813" className="text-teal-600 hover:underline">(303) 492-6813</a>
             </div>
           </div>
           

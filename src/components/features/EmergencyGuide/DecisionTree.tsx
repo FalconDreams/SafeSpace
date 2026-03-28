@@ -66,8 +66,8 @@ export const DecisionTree: React.FC = () => {
 
             {result.legalNotice && (
               <div className="rounded-md bg-gray-100 p-3">
-                <p className="text-sm font-medium text-gray-700">Legal Notice:</p>
-                <p className="text-sm text-gray-600">{result.legalNotice}</p>
+                <p className="text-sm font-medium text-text">Legal Notice:</p>
+                <p className="text-sm text-text-muted">{result.legalNotice}</p>
               </div>
             )}
           </div>
@@ -89,14 +89,14 @@ export const DecisionTree: React.FC = () => {
       <Card>
         <div className="space-y-4">
           <h2 className="text-xl font-semibold">{currentNode.question}</h2>
-          {currentNode.description && <p className="text-gray-600">{currentNode.description}</p>}
+          {currentNode.description && <p className="text-text-muted">{currentNode.description}</p>}
 
           <div className="space-y-2">
             {currentNode.options?.map((option) => (
               <button
                 key={option.label}
                 onClick={() => handleOptionClick(option.nextId)}
-                className={`w-full rounded-lg border p-4 text-left transition-colors hover:bg-gray-50 ${option.urgency === '24hr' ? 'border-red-300 hover:bg-red-50' : 'border-gray-300'} `}
+                className={`w-full rounded-lg border p-4 text-left transition-colors hover:bg-surface-muted ${option.urgency === '24hr' ? 'border-red-300 hover:bg-red-50' : 'border-border'} `}
               >
                 <span className="font-medium">{option.label}</span>
                 {option.urgency === '24hr' && (

@@ -14,12 +14,12 @@ export const EmergencyContacts: React.FC = () => {
               <a
                 href={`tel:${contact.phone.replace(/\D/g, '')}`}
                 className={`text-lg font-medium ${
-                  contact.emergency ? 'text-red-600' : 'text-primary-600'
+                  contact.emergency ? 'text-red-600' : 'text-teal-600'
                 } hover:underline`}
               >
                 {contact.phone}
               </a>
-              <p className="text-sm text-gray-600">{contact.description}</p>
+              <p className="text-sm text-text-muted">{contact.description}</p>
               {contact.hours && <p className="text-xs text-gray-500">{contact.hours}</p>}
             </div>
           </Card>

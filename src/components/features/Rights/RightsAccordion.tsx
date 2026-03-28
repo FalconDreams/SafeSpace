@@ -99,7 +99,7 @@ export const RightsAccordion: React.FC = () => {
         <div key={section.id} className="border border-gray-200 rounded-lg">
           <button
             onClick={() => toggleSection(section.id)}
-            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-gray-50 transition-colors"
+            className="w-full px-6 py-4 text-left flex items-center justify-between hover:bg-surface-muted transition-colors"
           >
             <h3 className="text-lg font-medium text-gray-900">{section.title}</h3>
             <svg
@@ -119,16 +119,16 @@ export const RightsAccordion: React.FC = () => {
               <ul className="space-y-2">
                 {section.content.map((item, index) => (
                   <li key={index} className="flex items-start">
-                    <span className="text-primary-600 mr-2">•</span>
-                    <span className="text-gray-700">{item}</span>
+                    <span className="text-teal-600 mr-2">•</span>
+                    <span className="text-text">{item}</span>
                   </li>
                 ))}
               </ul>
               
               {section.laws && (
                 <div className="mt-4 p-3 bg-gray-100 rounded">
-                  <p className="text-sm font-medium text-gray-700">Relevant Laws:</p>
-                  <p className="text-sm text-gray-600">{section.laws.join(', ')}</p>
+                  <p className="text-sm font-medium text-text">Relevant Laws:</p>
+                  <p className="text-sm text-text-muted">{section.laws.join(', ')}</p>
                 </div>
               )}
             </div>

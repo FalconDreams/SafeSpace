@@ -84,17 +84,21 @@ export const DeadlineCalculator: React.FC = () => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'on-time': return 'text-green-600 bg-green-50';
-      case 'late': return 'text-yellow-600 bg-yellow-50';
-      case 'overdue': return 'text-red-600 bg-red-50';
-      default: return '';
+      case 'on-time':
+        return 'text-success bg-success-bg border-success/30';
+      case 'late':
+        return 'text-warning bg-warning-bg border-warning/30';
+      case 'overdue':
+        return 'text-danger bg-danger-bg border-danger/30';
+      default:
+        return 'text-text-muted bg-surface-muted border-border';
     }
   };
 
   return (
     <div className="space-y-6">
       <Card>
-        <h3 className="text-lg font-semibold text-gray-900 mb-4">Calculate Response Deadline</h3>
+        <h3 className="mb-4 text-lg font-semibold text-text">Calculate Response Deadline</h3>
         <div className="space-y-4">
           <Select
             label="Type of Issue"
@@ -129,7 +133,7 @@ export const DeadlineCalculator: React.FC = () => {
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <h4 className="text-lg font-semibold">Legal Deadline</h4>
-              <span className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(result.status)}`}>
+              <span className={`inline-flex items-center rounded-full border px-3 py-1 text-sm font-medium ${getStatusColor(result.status)}`}>
                 {result.status === 'on-time' && 'On Time'}
                 {result.status === 'late' && 'Response Due Soon'}
                 {result.status === 'overdue' && 'Overdue'}
@@ -138,14 +142,14 @@ export const DeadlineCalculator: React.FC = () => {
             
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-500">Deadline</p>
+                <p className="text-sm text-text-muted">Deadline</p>
                 <p className="text-lg font-medium">
                   {result.deadline.toLocaleDateString()} at {result.deadline.toLocaleTimeString()}
                 </p>
               </div>
               
               <div>
-                <p className="text-sm text-gray-500">Time Remaining</p>
+                <p className="text-sm text-text-muted">Time Remaining</p>
                 <p className="text-lg font-medium">
                   {result.hoursRemaining > 0 
                     ? `${result.hoursRemaining} hours`
@@ -155,8 +159,8 @@ export const DeadlineCalculator: React.FC = () => {
               </div>
             </div>
             
-            <div className="border-t pt-4">
-              <p className="text-sm text-gray-700">
+            <div className="border-t border-border pt-4">
+              <p className="text-sm text-text-muted">
                 Colorado law requires landlords to respond to this type of issue within <strong>{result.legalDeadline}</strong>.
                 {result.status === 'overdue' && ' Since the deadline has passed, you may have additional legal remedies available.'}
               </p>

@@ -1,79 +1,84 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card } from '../components/common';
 
-export const HomePage: React.FC = () => {
+export function HomePage() {
   const features = [
     {
       title: 'Emergency Health Guide',
-      description: 'Get immediate guidance for health emergencies with 24/72-hour response requirements',
+      description: 'Get immediate guidance for health emergencies with 24/72-hour response requirements.',
       link: '/emergency-guide',
+      icon: '🚨',
       urgent: true,
     },
     {
       title: 'Property Lookup',
-      description: 'Research property health history and read community experiences',
+      description: 'Research property health history and read community experiences.',
       link: '/property-lookup',
+      icon: '🔍',
     },
     {
       title: 'Report Health Issues',
-      description: 'Submit anonymous health violations with photo evidence',
+      description: 'Submit health violations with photo evidence and anonymous options.',
       link: '/report',
+      icon: '📋',
     },
     {
       title: 'Track Landlord Response',
-      description: 'Monitor compliance with legal deadlines and document responses',
+      description: 'Monitor compliance with legal deadlines and document responses.',
       link: '/tracker',
+      icon: '⏱️',
     },
     {
       title: 'Know Your Rights',
-      description: 'Learn about Boulder County\'s 2024 health and safety laws',
+      description: "Learn about Boulder County's tenant health and safety protections.",
       link: '/know-your-rights',
+      icon: '⚖️',
+    },
+    {
+      title: 'Legal Notice Generator',
+      description: 'Generate professional legal notices with Boulder County law citations.',
+      link: '/legal-notice',
+      icon: '📄',
     },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       <section className="text-center">
-        <h1 className="text-4xl font-bold text-gray-900 sm:text-5xl">
-          Protecting Boulder Renters' Health & Safety
+        <h1 className="text-4xl font-bold tracking-tight text-text sm:text-5xl">
+          Protecting Boulder Renters'
+          <span className="text-teal-600"> Health & Safety</span>
         </h1>
-        <p className="mt-4 text-lg text-gray-600 max-w-2xl mx-auto">
-          Know your rights, report health violations, and hold landlords accountable with Boulder County's enhanced 2024 health laws.
+        <p className="mx-auto mt-4 max-w-2xl text-lg text-text-muted">
+          Know your rights, report health violations, and hold landlords accountable under Boulder County law.
         </p>
       </section>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feature) => (
           <Link key={feature.link} to={feature.link}>
             <Card hover className="h-full">
-              <h3 className={`text-xl font-semibold ${feature.urgent ? 'text-alert-urgent' : 'text-gray-900'}`}>
+              <div className="mb-3 text-3xl">{feature.icon}</div>
+              <h3 className={`text-lg font-semibold ${feature.urgent ? 'text-danger' : 'text-text'}`}>
                 {feature.title}
               </h3>
-              <p className="mt-2 text-gray-600">{feature.description}</p>
-              {feature.urgent && (
-                <span className="inline-block mt-3 text-sm font-medium text-alert-urgent">
-                  For urgent health issues →
-                </span>
-              )}
+              <p className="mt-2 text-sm text-text-muted">{feature.description}</p>
             </Card>
           </Link>
         ))}
       </div>
 
-      <section className="bg-primary-50 rounded-lg p-6 text-center">
-        <h2 className="text-2xl font-bold text-primary-900">
-          Facing a Health Emergency?
-        </h2>
-        <p className="mt-2 text-primary-700">
+      <section className="rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 p-8 text-center text-white shadow-lg">
+        <h2 className="text-2xl font-bold">Facing a Health Emergency?</h2>
+        <p className="mt-2 text-teal-100">
           Some issues require landlord response within 24 hours by law.
         </p>
         <Link to="/emergency-guide">
-          <Button variant="danger" size="lg" className="mt-4">
+          <Button variant="secondary" size="lg" className="mt-5 border-white/30 bg-white/10 text-white hover:bg-white/20">
             Get Emergency Guidance Now
           </Button>
         </Link>
       </section>
     </div>
   );
-};
+}

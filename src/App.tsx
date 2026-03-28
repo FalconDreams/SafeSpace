@@ -7,6 +7,7 @@ import {
   ReportPage,
   TrackerPage,
   KnowYourRightsPage,
+  LegalNoticePage,
 } from './pages';
 
 function App() {
@@ -17,9 +18,11 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/emergency-guide" element={<EmergencyGuidePage />} />
           <Route path="/property-lookup" element={<PropertyLookupPage />} />
+          <Route path="/property/:propertyId" element={<PropertyLookupPage />} />
           <Route path="/report" element={<ReportPage />} />
           <Route path="/tracker" element={<TrackerPage />} />
           <Route path="/know-your-rights" element={<KnowYourRightsPage />} />
+          <Route path="/legal-notice" element={<LegalNoticePage />} />
         </Routes>
       </Layout>
     </HashRouter>

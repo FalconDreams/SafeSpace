@@ -1,27 +1,33 @@
-import React from 'react';
+import type { ReactNode, MouseEventHandler } from 'react';
 
 interface CardProps {
-  children: React.ReactNode;
+  children: ReactNode;
   className?: string;
-  onClick?: () => void;
+  onClick?: MouseEventHandler;
   hover?: boolean;
+  variant?: 'default' | 'info' | 'warning' | 'danger' | 'success';
 }
 
-export const Card: React.FC<CardProps> = ({ 
-  children, 
-  className = '', 
+export function Card({
+  children,
+  className = '',
   onClick,
-  hover = false 
-}) => {
-  const baseClasses = 'bg-white rounded-lg shadow-sm border border-gray-200 p-6';
-  const interactiveClasses = onClick || hover ? 'cursor-pointer hover:shadow-md transition-shadow' : '';
-  
+  hover = false,
+  variant = 'default',
+}: CardProps) {
+  const base = 'rounded-[var(--radius-card)] border p-6 shadow-sm';
+  const variants = {
+    default: 'bg-surface border-border',
+    info: 'bg-info-bg border-teal-200',
+    warning: 'bg-warning-bg border-amber-200',
+    danger: 'bg-danger-bg border-red-200',
+    success: 'bg-success-bg border-emerald-200',
+  };
+  const interactive = onClick || hover ? 'cursor-pointer transition-shadow hover:shadow-md' : '';
+
   return (
-    <div 
-      className={`${baseClasses} ${interactiveClasses} ${className}`}
-      onClick={onClick}
-    >
+    <div className={`${base} ${variants[variant]} ${interactive} ${className}`} onClick={onClick}>
       {children}
     </div>
   );
-};
+}

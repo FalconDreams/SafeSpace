@@ -81,20 +81,20 @@ export const TrackedIssues: React.FC = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'pending':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-warning-bg text-warning border-warning/30';
       case 'resolved':
-        return 'bg-green-100 text-green-800';
+        return 'bg-success-bg text-success border-success/30';
       case 'overdue':
-        return 'bg-red-100 text-red-800';
+        return 'bg-danger-bg text-danger border-danger/30';
       default:
-        return '';
+        return 'bg-surface-muted text-text-muted border-border';
     }
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Your Tracked Issues</h3>
+        <h3 className="text-lg font-semibold text-text">Your Tracked Issues</h3>
         {!showAddForm && (
           <Button onClick={() => setShowAddForm(true)} size="sm">
             Track New Issue
@@ -103,7 +103,7 @@ export const TrackedIssues: React.FC = () => {
       </div>
 
       {showAddForm && (
-        <Card className="bg-gray-50">
+        <Card className="bg-surface-muted">
           <form onSubmit={handleAddIssue} className="space-y-4">
             <Input
               label="Property Address"
@@ -148,8 +148,8 @@ export const TrackedIssues: React.FC = () => {
 
       {issues.length === 0 ? (
         <Card className="py-8 text-center">
-          <p className="text-gray-500">No issues being tracked</p>
-          <p className="mt-2 text-sm text-gray-400">
+          <p className="text-text-muted">No issues being tracked</p>
+          <p className="mt-2 text-sm text-text-muted">
             Start tracking to monitor landlord response times
           </p>
         </Card>
@@ -165,12 +165,12 @@ export const TrackedIssues: React.FC = () => {
                 <div className="space-y-4">
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
-                      <h4 className="font-medium text-gray-900">{issue.propertyAddress}</h4>
-                      <p className="mt-1 text-sm text-gray-600">{issue.issueType}</p>
+                      <h4 className="font-medium text-text">{issue.propertyAddress}</h4>
+                      <p className="mt-1 text-sm text-text-muted">{issue.issueType}</p>
                     </div>
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                        isOverdue ? 'bg-red-100 text-red-800' : getStatusColor(issue.status)
+                      className={`inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-medium ${
+                        isOverdue ? 'bg-danger-bg text-danger border-danger/30' : getStatusColor(issue.status)
                       }`}
                     >
                       {isOverdue ? 'Overdue' : issue.status}
@@ -179,18 +179,18 @@ export const TrackedIssues: React.FC = () => {
 
                   <div className="grid grid-cols-2 gap-4 text-sm">
                     <div>
-                      <p className="text-gray-500">Reported</p>
+                      <p className="text-text-muted">Reported</p>
                       <p className="font-medium">
                         {new Date(issue.dateReported).toLocaleDateString()}
                       </p>
                     </div>
                     <div>
-                      <p className="text-gray-500">Deadline</p>
+                      <p className="text-text-muted">Deadline</p>
                       <p className="font-medium">{deadline.toLocaleDateString()}</p>
                     </div>
                   </div>
 
-                  {issue.notes && <p className="text-sm text-gray-600">{issue.notes}</p>}
+                  {issue.notes && <p className="text-sm text-text-muted">{issue.notes}</p>}
 
                   {issue.status === 'pending' && (
                     <div className="flex gap-2 pt-2">

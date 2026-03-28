@@ -1,19 +1,17 @@
-import React, { useState } from 'react';
-import { Input } from '../../common/Form';
-import { Button } from '../../common';
+import { useState, type FormEvent } from 'react';
+import { Button, Input } from '../../common';
 
 interface PropertySearchProps {
   onSearch: (address: string) => void;
+  loading?: boolean;
 }
 
-export const PropertySearch: React.FC<PropertySearchProps> = ({ onSearch }) => {
+export function PropertySearch({ onSearch, loading }: PropertySearchProps) {
   const [address, setAddress] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
-    if (address.trim()) {
-      onSearch(address.trim());
-    }
+    if (address.trim()) onSearch(address.trim());
   };
 
   return (
@@ -21,20 +19,19 @@ export const PropertySearch: React.FC<PropertySearchProps> = ({ onSearch }) => {
       <div className="flex gap-3">
         <div className="flex-1">
           <Input
-            type="text"
-            placeholder="Enter property address (e.g., 1234 Pearl St, Boulder, CO)"
+            placeholder="Enter a Boulder County address..."
             value={address}
             onChange={(e) => setAddress(e.target.value)}
-            className="text-lg"
+            aria-label="Property address"
           />
         </div>
-        <Button type="submit" size="lg">
-          Search
+        <Button type="submit" disabled={!address.trim() || loading}>
+          {loading ? 'Searching...' : 'Search'}
         </Button>
       </div>
-      <p className="text-sm text-gray-600">
-        Search for any Boulder County rental property to view health history and community feedback
+      <p className="text-sm text-text-muted">
+        Search any Boulder County rental address to view reports, comments, and landlord responses.
       </p>
     </form>
   );
-};
+}

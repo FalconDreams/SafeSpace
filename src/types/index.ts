@@ -1,4 +1,3 @@
-// Issue and severity types
 export type IssueType =
   | 'mold'
   | 'radon'
@@ -12,56 +11,7 @@ export type IssueType =
 
 export type Severity = 'emergency_24h' | 'urgent_72h' | 'standard';
 
-export type ReportStatus = 'reported' | 'in_progress' | 'resolved' | 'ignored';
-
-export type CommentCategory =
-  | 'mold'
-  | 'radon'
-  | 'landlord_response'
-  | 'air_quality'
-  | 'general_health';
-
-export type VoteType = 'helpful' | 'unhelpful';
-
-export type ViolationStatus = 'Resolved' | 'Pending' | 'Unresolved';
-
-export type LicenseStatus = 'Active' | 'Expired' | 'Revoked' | 'None';
-
-// Domain models
-
-export interface Violation {
-  date: string;
-  type: string;
-  status: ViolationStatus;
-  description: string;
-}
-
-export interface Property {
-  address: string;
-  landlord?: string;
-  licenseStatus?: LicenseStatus;
-  violations: Violation[];
-  comments: PropertyComment[];
-}
-
-export interface PropertyComment {
-  id: string;
-  text: string;
-  date: string;
-  helpful: number;
-  anonymous: boolean;
-}
-
-export interface HealthReport {
-  propertyAddress: string;
-  issueType: string;
-  description: string;
-  dateOccurred: string;
-  landlordNotified: boolean;
-  dateNotified: string;
-  anonymous: boolean;
-  contactEmail?: string;
-}
+export type ReportStatus = 'pending' | 'responded' | 'resolved' | 'overdue';
 
 export interface TrackedIssue {
   id: string;
@@ -69,12 +19,10 @@ export interface TrackedIssue {
   issueType: string;
   dateReported: string;
   deadline: string;
-  status: 'pending' | 'resolved' | 'overdue';
+  status: 'pending' | 'responded' | 'resolved' | 'overdue';
   landlordResponse?: string;
   notes: string;
 }
-
-// Emergency guide types
 
 export interface DecisionNode {
   id: string;
@@ -98,12 +46,23 @@ export interface DecisionResult {
   legalNotice?: string;
 }
 
-// Emergency contacts
-
 export interface EmergencyContact {
   name: string;
   phone: string;
   description: string;
   hours?: string;
   emergency?: boolean;
+}
+
+export interface ExpansionCity {
+  city: string;
+  state: string;
+  population: number;
+  rent_control: boolean;
+  just_cause_eviction: boolean;
+  key_laws: string[];
+  security_deposit_limit: string;
+  repair_standards: string;
+  resources: { name: string; url: string; phone?: string }[];
+  notes: string;
 }

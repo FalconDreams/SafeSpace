@@ -1,43 +1,41 @@
-import React from 'react';
+import type { ButtonHTMLAttributes, ReactNode } from 'react';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'danger' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
   fullWidth?: boolean;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
-export const Button: React.FC<ButtonProps> = ({
+export function Button({
   variant = 'primary',
   size = 'md',
   fullWidth = false,
   children,
   className = '',
   ...props
-}) => {
-  const baseClasses = 'inline-flex items-center justify-center font-medium rounded-md transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
-  
-  const variantClasses = {
-    primary: 'bg-primary-600 text-white hover:bg-primary-700 focus:ring-primary-500',
-    secondary: 'bg-white text-gray-700 border border-gray-300 hover:bg-gray-50 focus:ring-primary-500',
-    danger: 'bg-alert-urgent text-white hover:bg-red-700 focus:ring-red-500',
-    ghost: 'text-gray-700 hover:bg-gray-100 focus:ring-gray-500',
+}: ButtonProps) {
+  const base = 'inline-flex min-h-[44px] items-center justify-center font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-focus-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+
+  const variants = {
+    primary: 'bg-teal-600 text-white hover:bg-teal-700 active:bg-teal-800 rounded-[var(--radius-btn)] shadow-sm',
+    secondary: 'border border-border bg-surface text-text hover:bg-surface-muted rounded-[var(--radius-btn)]',
+    danger: 'bg-danger text-white hover:bg-red-600 rounded-[var(--radius-btn)] shadow-sm',
+    ghost: 'text-text-muted hover:bg-surface-muted hover:text-text rounded-[var(--radius-btn)]',
   };
-  
-  const sizeClasses = {
+
+  const sizes = {
     sm: 'px-3 py-1.5 text-sm',
-    md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg',
+    md: 'px-5 py-2.5 text-base',
+    lg: 'px-7 py-3 text-lg',
   };
-  
-  const widthClass = fullWidth ? 'w-full' : '';
-  
+
   return (
     <button
-      className={`${baseClasses} ${variantClasses[variant]} ${sizeClasses[size]} ${widthClass} ${className}`}
+      className={`${base} ${variants[variant]} ${sizes[size]} ${fullWidth ? 'w-full' : ''} ${className}`}
       {...props}
     >
       {children}
     </button>
   );
-};
+}

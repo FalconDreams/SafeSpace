@@ -1,156 +1,120 @@
-import React, { useState, useEffect } from 'react';
-import { Card, Button } from '../../common';
-import { Textarea } from '../../common/Form';
-import { useLocalStorage } from '../../../hooks';
-import type { PropertyComment } from '../../../types';
+import { useState, type FormEvent } from 'react';
+import { Card, Button, Textarea } from '../../common';
+import { useAuth } from '../../../contexts/AuthContext';
+import { ProtectedAction } from '../../auth/ProtectedAction';
+import { supabase } from '../../../lib/supabase';
+import type { Comment as DbComment } from '../../../types/database';
 
 interface CommunityCommentsProps {
-  propertyAddress: string;
-  comments: PropertyComment[];
+  propertyId: string;
+  comments: DbComment[];
+  onCommentAdded: () => void;
 }
 
-export const CommunityComments: React.FC<CommunityCommentsProps> = ({
-  propertyAddress,
-  comments: seedComments,
-}) => {
-  const storageKey = `safespace-comments-${propertyAddress.toLowerCase().replace(/[,.\s]+/g, '-')}`;
-  const [storedComments, setStoredComments] = useLocalStorage<PropertyComment[] | null>(
-    storageKey,
-    null
-  );
-
-  // Use stored comments if available, otherwise use seed data
-  const comments = storedComments ?? seedComments;
-  const setComments = (updated: PropertyComment[]) => setStoredComments(updated);
-
-  // Sync seed comments into storage on first load for this property
-  useEffect(() => {
-    if (storedComments === null && seedComments.length > 0) {
-      setStoredComments(seedComments);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [storageKey]);
-  const [newComment, setNewComment] = useState('');
+export function CommunityComments({ propertyId, comments, onCommentAdded }: CommunityCommentsProps) {
+  const { user } = useAuth();
+  const [body, setBody] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(true);
-  const [showAddComment, setShowAddComment] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (newComment.trim()) {
-      const comment: PropertyComment = {
-        id: Date.now().toString(),
-        text: newComment.trim(),
-        date: new Date().toISOString(),
-        helpful: 0,
-        anonymous: isAnonymous,
-      };
-      setComments([comment, ...comments]);
-      setNewComment('');
-      setShowAddComment(false);
+    if (!user || !body.trim()) return;
+    setSubmitting(true);
+    setError('');
+
+    const { error: err } = await supabase.from('comments').insert({
+      property_id: propertyId,
+      commenter_id: user.id,
+      body: body.trim(),
+      is_anonymous: isAnonymous,
+    });
+
+    if (err) {
+      setError(err.message);
+    } else {
+      setBody('');
+      onCommentAdded();
     }
+    setSubmitting(false);
   };
 
-  const handleHelpful = (commentId: string) => {
-    setComments(
-      comments.map((comment) =>
-        comment.id === commentId ? { ...comment, helpful: comment.helpful + 1 } : comment
-      )
-    );
+  const handleVote = async (commentId: string) => {
+    if (!user) return;
+    await supabase.from('helpful_votes').insert({
+      user_id: user.id,
+      comment_id: commentId,
+    });
+    onCommentAdded();
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-900">Community Feedback</h3>
-        {!showAddComment && (
-          <Button onClick={() => setShowAddComment(true)} size="sm">
-            Add Comment
-          </Button>
-        )}
-      </div>
-
-      {showAddComment && (
-        <Card className="bg-surface-muted">
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Textarea
-              label="Share your health/safety experience at this property"
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Describe any mold, heating, plumbing, or other health issues you've experienced..."
-              rows={4}
-            />
-
-            <div className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                id="anonymous"
-                checked={isAnonymous}
-                onChange={(e) => setIsAnonymous(e.target.checked)}
-                className="text-brand-600 focus:ring-brand-500 h-4 w-4 rounded border-border"
-              />
-              <label htmlFor="anonymous" className="text-sm text-text">
-                Hide my display name
-              </label>
-              <span className="block text-xs text-text-muted ml-6">
-                Your name won't be shown, but comment content is publicly visible.
-              </span>
-            </div>
-
-            <div className="flex gap-3">
-              <Button type="submit">Post Comment</Button>
-              <Button
-                type="button"
-                variant="ghost"
-                onClick={() => {
-                  setShowAddComment(false);
-                  setNewComment('');
-                }}
-              >
-                Cancel
-              </Button>
-            </div>
-          </form>
-        </Card>
-      )}
+      <h3 className="text-lg font-semibold text-text">Community Comments</h3>
 
       {comments.length === 0 ? (
-        <Card className="py-8 text-center">
-          <p className="text-gray-500">No community feedback yet for this property</p>
-          <p className="mt-2 text-sm text-gray-400">Be the first to share your experience</p>
-        </Card>
+        <p className="text-text-muted">No comments yet. Be the first to share your experience.</p>
       ) : (
         <div className="space-y-4">
           {comments.map((comment) => (
             <Card key={comment.id}>
-              <div className="space-y-3">
-                <p className="text-gray-900">{comment.text}</p>
-
-                <div className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-4 text-gray-500">
-                    <span>{comment.anonymous ? 'Anonymous' : 'Verified Tenant'}</span>
-                    <span>{new Date(comment.date).toLocaleDateString()}</span>
-                  </div>
-
-                  <button
-                    onClick={() => handleHelpful(comment.id)}
-                    className="hover:text-brand-600 flex items-center gap-1 text-text-muted"
-                  >
-                    <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5"
-                      />
-                    </svg>
-                    <span>Helpful ({comment.helpful})</span>
-                  </button>
+              <div className="space-y-2">
+                <div className="flex items-start justify-between">
+                  <span className="text-xs text-text-muted">
+                    {comment.is_anonymous ? 'Anonymous' : 'Community member'} &middot;{' '}
+                    {new Date(comment.created_at).toLocaleDateString()}
+                  </span>
+                  {user && (
+                    <button
+                      onClick={() => handleVote(comment.id)}
+                      className="flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-xs text-text-muted transition-colors hover:border-teal-300 hover:text-teal-600"
+                    >
+                      <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 10h4.764a2 2 0 011.789 2.894l-3.5 7A2 2 0 0115.263 21h-4.017c-.163 0-.326-.02-.485-.06L7 20m7-10V5a2 2 0 00-2-2h-.095c-.5 0-.905.405-.905.905 0 .714-.211 1.412-.608 2.006L7 11v9m7-10h-2M7 20H5a2 2 0 01-2-2v-6a2 2 0 012-2h2.5" />
+                      </svg>
+                      {comment.helpful_count}
+                    </button>
+                  )}
                 </div>
+                <p className="text-text">{comment.body}</p>
               </div>
             </Card>
           ))}
         </div>
       )}
+
+      <ProtectedAction>
+        <Card className="bg-sand-50">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <Textarea
+              label="Add a comment"
+              value={body}
+              onChange={(e) => setBody(e.target.value)}
+              placeholder="Share your experience with this property..."
+              maxLength={2000}
+              required
+            />
+            <p className="text-xs text-text-muted">{body.length}/2000 characters</p>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={isAnonymous}
+                onChange={(e) => setIsAnonymous(e.target.checked)}
+                className="h-4 w-4 rounded border-border text-teal-600 focus:ring-teal-500"
+              />
+              <span className="text-sm text-text">Post anonymously</span>
+            </label>
+
+            {error && <p className="text-sm text-danger">{error}</p>}
+
+            <Button type="submit" disabled={!body.trim() || submitting}>
+              {submitting ? 'Posting...' : 'Post comment'}
+            </Button>
+          </form>
+        </Card>
+      </ProtectedAction>
     </div>
   );
-};
+}

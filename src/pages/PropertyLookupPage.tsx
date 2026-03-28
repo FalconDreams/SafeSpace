@@ -1,89 +1,123 @@
-import React, { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { PropertySearch } from '../components/features/PropertyLookup/PropertySearch';
 import { PropertyDetails } from '../components/features/PropertyLookup/PropertyDetails';
 import { CommunityComments } from '../components/features/PropertyLookup/CommunityComments';
-import { OnChainReports } from '../components/features/PropertyLookup/OnChainReports';
-import { seedProperties } from '../data/properties';
-import type { Property } from '../types';
+import { RebuttalForm } from '../components/features/PropertyLookup/RebuttalForm';
+import { supabase } from '../lib/supabase';
+import type { Report, Comment as DbComment, Rebuttal, Property } from '../types/database';
 
-function findProperty(query: string): Property | null {
-  const normalized = query.toLowerCase().replace(/[,.]/g, '').trim();
+export function PropertyLookupPage() {
+  const [searchedAddress, setSearchedAddress] = useState('');
+  const [property, setProperty] = useState<Property | null>(null);
+  const [reports, setReports] = useState<Report[]>([]);
+  const [comments, setComments] = useState<DbComment[]>([]);
+  const [rebuttals, setRebuttals] = useState<Rebuttal[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
 
-  // Exact key match first
-  if (seedProperties[normalized]) {
-    return seedProperties[normalized];
-  }
+  const fetchPropertyData = useCallback(async (addressHash: string) => {
+    const { data: prop } = await supabase
+      .from('properties')
+      .select('*')
+      .eq('address_hash', addressHash)
+      .single();
 
-  // Fuzzy: find any property whose key or full address contains the query
-  for (const [key, property] of Object.entries(seedProperties)) {
-    if (key.includes(normalized) || property.address.toLowerCase().includes(normalized)) {
-      return property;
-    }
-  }
+    if (prop) {
+      setProperty(prop);
 
-  return null;
-}
+      const [reportsRes, commentsRes, rebuttalsRes] = await Promise.all([
+        supabase.from('reports').select('*').eq('property_id', prop.id).order('created_at', { ascending: false }),
+        supabase.from('comments').select('*').eq('property_id', prop.id).order('created_at', { ascending: false }),
+        supabase.from('rebuttals').select('*').eq('property_id', prop.id),
+      ]);
 
-export const PropertyLookupPage: React.FC = () => {
-  const [searchedAddress, setSearchedAddress] = useState<string>('');
-  const [propertyData, setPropertyData] = useState<Property | null>(null);
-
-  const handleSearch = (address: string) => {
-    setSearchedAddress(address);
-    const property = findProperty(address);
-
-    if (property) {
-      setPropertyData(property);
+      setReports(reportsRes.data || []);
+      setComments(commentsRes.data || []);
+      setRebuttals(rebuttalsRes.data || []);
     } else {
-      setPropertyData({
-        address: address,
-        violations: [],
-        comments: [],
-      });
+      setProperty(null);
+      setReports([]);
+      setComments([]);
+      setRebuttals([]);
+    }
+  }, []);
+
+  const handleSearch = async (address: string) => {
+    setSearchedAddress(address);
+    setLoading(true);
+    setSearched(true);
+
+    // Create a simple hash from the address for lookup
+    const normalized = address.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, ' ');
+    const encoder = new TextEncoder();
+    const data = encoder.encode(normalized);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const addressHash = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+    await fetchPropertyData(addressHash);
+    setLoading(false);
+  };
+
+  const handleRefresh = () => {
+    if (property) {
+      fetchPropertyData(property.address_hash);
     }
   };
 
   return (
     <div className="space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Property Health Lookup</h1>
-        <p className="mt-2 text-lg text-gray-600">
+        <h1 className="text-3xl font-bold text-text">Property Health Lookup</h1>
+        <p className="mt-2 text-lg text-text-muted">
           Research rental property health history and read community experiences
         </p>
       </div>
 
-      <PropertySearch onSearch={handleSearch} />
+      <PropertySearch onSearch={handleSearch} loading={loading} />
 
-      {propertyData && (
+      {searched && !loading && property && (
         <>
-          <PropertyDetails property={propertyData} />
+          <PropertyDetails
+            address={property.address_normalized}
+            reports={reports}
+            comments={comments}
+            rebuttals={rebuttals}
+          />
 
-          <OnChainReports propertyAddress={propertyData.address} />
-
-          <div className="border-t pt-8">
+          <div className="border-t border-border pt-8">
             <CommunityComments
-              propertyAddress={propertyData.address}
-              comments={propertyData.comments || []}
+              propertyId={property.id}
+              comments={comments}
+              onCommentAdded={handleRefresh}
             />
           </div>
 
-          <div className="rounded-lg bg-gray-50 p-6">
-            <p className="text-sm text-gray-600">
-              <strong>Note:</strong> This information is compiled from public records and community
-              reports. Always conduct your own inspection and due diligence before renting.
-            </p>
-          </div>
+          {reports.length > 0 && (
+            <div className="border-t border-border pt-8">
+              <h3 className="mb-4 text-lg font-semibold text-text">Property Owner?</h3>
+              <RebuttalForm reportId={reports[0].id} propertyId={property.id} />
+            </div>
+          )}
         </>
       )}
 
-      {searchedAddress && !propertyData && (
+      {searched && !loading && !property && (
         <div className="py-12 text-center">
-          <p className="text-gray-500">No records found for this address</p>
-          <p className="mt-2 text-sm text-gray-400">
-            Try searching with a different format or check the address
+          <p className="text-text-muted">No records found for "{searchedAddress}"</p>
+          <p className="mt-2 text-sm text-text-muted">
+            This property has no reports yet. You can be the first to report an issue.
+          </p>
+        </div>
+      )}
+
+      {searched && (
+        <div className="rounded-xl bg-surface-muted p-6">
+          <p className="text-sm text-text-muted">
+            <strong>Note:</strong> This information is compiled from community reports. Always conduct your own inspection and due diligence before renting.
           </p>
         </div>
       )}
     </div>
   );
-};
+}

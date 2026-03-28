@@ -1,35 +1,273 @@
-import React from 'react';
-import { ReportForm } from '../components/features/Reporting/ReportForm';
+import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { Link } from 'react-router-dom';
+import { Button, Card, Input, Textarea, Select } from '../components/common';
+import { ProtectedAction } from '../components/auth/ProtectedAction';
+import { useAuth } from '../contexts/AuthContext';
+import { useFormBehavior } from '../hooks';
+import { supabase } from '../lib/supabase';
 
-export const ReportPage: React.FC = () => {
+const issueTypes = [
+  { value: 'mold', label: 'Mold' },
+  { value: 'radon', label: 'Radon' },
+  { value: 'carbon-monoxide', label: 'Carbon Monoxide' },
+  { value: 'heating', label: 'Heating / No Heat' },
+  { value: 'electrical', label: 'Electrical' },
+  { value: 'plumbing', label: 'Plumbing' },
+  { value: 'structural', label: 'Structural' },
+  { value: 'pests', label: 'Pests' },
+  { value: 'other', label: 'Other' },
+];
+
+const severityOptions = [
+  { value: 'emergency_24h', label: '24-Hour Emergency (no heat, gas leak, sewage)' },
+  { value: 'urgent_72h', label: '72-Hour Urgent (mold > 10 sq ft, no hot water)' },
+  { value: 'standard', label: 'Standard (7–30 day repair window)' },
+];
+
+async function hashAddress(address: string): Promise<string> {
+  const normalized = address.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, ' ');
+  const encoder = new TextEncoder();
+  const data = encoder.encode(normalized);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+export function ReportPage() {
+  const { user } = useAuth();
+  const { isHumanLikely, onKeyActivity } = useFormBehavior();
+
+  const [form, setForm] = useState({
+    address: '',
+    issueType: '',
+    severity: '',
+    description: '',
+    isAnonymous: true,
+  });
+  const [photos, setPhotos] = useState<File[]>([]);
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState(false);
+
+  const updateField = (field: string, value: string | boolean) =>
+    setForm(prev => ({ ...prev, [field]: value }));
+
+  const handlePhotoChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    const valid = files.filter(f => f.size <= 5 * 1024 * 1024 && f.type.startsWith('image/'));
+    setPhotos(prev => [...prev, ...valid].slice(0, 4));
+  };
+
+  const removePhoto = (index: number) => {
+    setPhotos(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleSubmit = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!user || !isHumanLikely) return;
+
+    setSubmitting(true);
+    setError('');
+
+    try {
+      const addressHash = await hashAddress(form.address);
+      const normalized = form.address.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, ' ');
+
+      // Find or create property
+      let { data: property } = await supabase
+        .from('properties')
+        .select('id')
+        .eq('address_hash', addressHash)
+        .single();
+
+      if (!property) {
+        const { data: newProp, error: propErr } = await supabase
+          .from('properties')
+          .insert({
+            address_raw: form.address,
+            address_normalized: normalized,
+            address_hash: addressHash,
+          })
+          .select('id')
+          .single();
+
+        if (propErr) throw propErr;
+        property = newProp;
+      }
+
+      // Upload photos to Supabase Storage
+      const photoUrls: string[] = [];
+      for (const photo of photos) {
+        const ext = photo.name.split('.').pop();
+        const path = `${user.id}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+        const { error: uploadErr } = await supabase.storage
+          .from('evidence')
+          .upload(path, photo);
+
+        if (!uploadErr) {
+          const { data: urlData } = supabase.storage.from('evidence').getPublicUrl(path);
+          photoUrls.push(urlData.publicUrl);
+        }
+      }
+
+      // Insert the report
+      const { error: reportErr } = await supabase.from('reports').insert({
+        property_id: property!.id,
+        reporter_id: user.id,
+        issue_type: form.issueType,
+        severity: form.severity,
+        description: form.description,
+        photo_urls: photoUrls.length > 0 ? photoUrls : null,
+        is_anonymous: form.isAnonymous,
+      });
+
+      if (reportErr) throw reportErr;
+      setSuccess(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to submit report. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (success) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-6">
+        <Card variant="success" className="text-center">
+          <div className="space-y-4 py-4">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
+              <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-emerald-800">Report Submitted</h2>
+            <p className="text-emerald-700">
+              Your report has been recorded. This helps other tenants and builds a record of property conditions.
+            </p>
+            <div className="flex justify-center gap-4 pt-2">
+              <Link to="/property-lookup">
+                <Button variant="secondary">View Property</Button>
+              </Link>
+              <Link to="/tracker">
+                <Button>Track Response</Button>
+              </Link>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-gray-900">Report Health Issues</h1>
+        <h1 className="text-3xl font-bold text-text">Report a Health or Safety Issue</h1>
         <p className="mt-2 text-lg text-text-muted">
-          Submit health and safety violations with optional anonymous display and photo evidence
+          Document violations to build a community record and protect future tenants.
         </p>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <div className="flex">
-          <div className="flex-shrink-0">
-            <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-            </svg>
-          </div>
-          <div className="ml-3">
-            <h3 className="text-sm font-medium text-blue-800">
-              Privacy and safety notes
-            </h3>
-            <p className="mt-1 text-sm text-blue-700">
-              Reports are stored on a public blockchain. You can hide your display name, but report content is publicly visible. This transparency helps build accountability — just avoid including sensitive personal details in your report. Authentication and network providers may also process metadata needed to run the service.
-            </p>
-          </div>
-        </div>
-      </div>
+      <ProtectedAction>
+        <Card>
+          <form onSubmit={handleSubmit} onKeyDown={onKeyActivity} className="space-y-6">
+            <Input
+              label="Property Address"
+              placeholder="123 Pearl St, Boulder, CO 80302"
+              value={form.address}
+              onChange={e => updateField('address', e.target.value)}
+              required
+            />
 
-      <ReportForm />
+            <Select
+              label="Issue Type"
+              options={issueTypes}
+              value={form.issueType}
+              onChange={e => updateField('issueType', e.target.value)}
+              required
+            />
+
+            <Select
+              label="Severity"
+              options={severityOptions}
+              value={form.severity}
+              onChange={e => updateField('severity', e.target.value)}
+              required
+            />
+
+            <Textarea
+              label="Description"
+              placeholder="Describe the issue in detail. Include location within the unit, how long it's been occurring, and any health effects..."
+              value={form.description}
+              onChange={e => updateField('description', e.target.value)}
+              maxLength={5000}
+              required
+            />
+            <p className="text-xs text-text-muted">{form.description.length}/5000 characters</p>
+
+            <div className="space-y-2">
+              <label className="block text-sm font-medium text-text">
+                Photo Evidence (up to 4 images, 5 MB each)
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handlePhotoChange}
+                className="block w-full text-sm text-text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-teal-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-teal-700 hover:file:bg-teal-100"
+              />
+              {photos.length > 0 && (
+                <div className="flex gap-3 pt-2">
+                  {photos.map((photo, i) => (
+                    <div key={i} className="relative">
+                      <img
+                        src={URL.createObjectURL(photo)}
+                        alt={`Upload ${i + 1}`}
+                        className="h-20 w-20 rounded-lg object-cover border border-border"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => removePhoto(i)}
+                        className="absolute -right-2 -top-2 flex h-5 w-5 items-center justify-center rounded-full bg-danger text-xs text-white"
+                      >
+                        &times;
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={form.isAnonymous}
+                onChange={e => updateField('isAnonymous', e.target.checked)}
+                className="h-4 w-4 rounded border-border text-teal-600 focus:ring-teal-500"
+              />
+              <span className="text-sm text-text">Submit anonymously</span>
+            </label>
+
+            {error && <p className="text-sm text-danger">{error}</p>}
+
+            {!isHumanLikely && (
+              <p className="text-xs text-text-muted">
+                Please take a moment to fill out the form. Submissions are available after a brief delay.
+              </p>
+            )}
+
+            <Button type="submit" fullWidth disabled={submitting || !isHumanLikely}>
+              {submitting ? 'Submitting Report...' : 'Submit Report'}
+            </Button>
+          </form>
+        </Card>
+      </ProtectedAction>
+
+      <div className="rounded-xl bg-surface-muted p-6">
+        <p className="text-sm text-text-muted">
+          <strong>Privacy:</strong> Anonymous reports do not display your identity. Your account is
+          used only to prevent abuse. Reports are publicly visible to help other renters research properties.
+        </p>
+      </div>
     </div>
   );
-};
+}

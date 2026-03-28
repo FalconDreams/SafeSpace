@@ -4,3 +4,4 @@ export { PropertyLookupPage } from './PropertyLookupPage';
 export { ReportPage } from './ReportPage';
 export { TrackerPage } from './TrackerPage';
 export { KnowYourRightsPage } from './KnowYourRightsPage';
+export { LegalNoticePage } from './LegalNoticePage';

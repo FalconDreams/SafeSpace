@@ -44,7 +44,7 @@ export const SuccessStories: React.FC = () => {
   return (
     <div className="space-y-6">
       <h2 className="text-2xl font-bold text-gray-900">Success Stories</h2>
-      <p className="text-gray-600">
+      <p className="text-text-muted">
         Real examples of Boulder renters successfully asserting their rights
       </p>
       
@@ -56,13 +56,13 @@ export const SuccessStories: React.FC = () => {
               
               <div className="space-y-2 text-sm">
                 <div>
-                  <p className="font-medium text-gray-700">Issue:</p>
-                  <p className="text-gray-600">{story.issue}</p>
+                  <p className="font-medium text-text">Issue:</p>
+                  <p className="text-text-muted">{story.issue}</p>
                 </div>
                 
                 <div>
-                  <p className="font-medium text-gray-700">Outcome:</p>
-                  <p className="text-gray-600">{story.outcome}</p>
+                  <p className="font-medium text-text">Outcome:</p>
+                  <p className="text-text-muted">{story.outcome}</p>
                 </div>
                 
                 <div className="flex items-center gap-2">
@@ -74,8 +74,8 @@ export const SuccessStories: React.FC = () => {
               </div>
               
               <div className="pt-3 border-t">
-                <p className="text-sm font-medium text-primary-700">Key Tip:</p>
-                <p className="text-sm text-gray-600">{story.tip}</p>
+                <p className="text-sm font-medium text-teal-700">Key Tip:</p>
+                <p className="text-sm text-text-muted">{story.tip}</p>
               </div>
             </div>
           </Card>

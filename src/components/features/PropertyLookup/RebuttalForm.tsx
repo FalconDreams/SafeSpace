@@ -1,104 +1,100 @@
-import React, { useState, useEffect } from 'react';
-import { usePrivy } from '@privy-io/react-auth';
-import { formatEther } from 'viem';
-import { Button, Card } from '../../common';
-import { Textarea } from '../../common/Form';
-import { useSubmitRebuttal } from '../../../hooks';
-import { ConnectWallet } from '../Wallet/ConnectWallet';
+import { useState } from 'react';
+import { loadStripe } from '@stripe/stripe-js';
+import { Card, Button, Input, Textarea } from '../../common';
 
 interface RebuttalFormProps {
-  propertyAddress: string;
-  reportIndex: number;
-  onSuccess?: () => void;
+  reportId: string;
+  propertyId: string;
 }
 
-export const RebuttalForm: React.FC<RebuttalFormProps> = ({
-  propertyAddress,
-  reportIndex,
-  onSuccess,
-}) => {
-  const { authenticated } = usePrivy();
-  const { submitRebuttal, isPending, isConfirming, isSuccess, error, rebuttalFee } =
-    useSubmitRebuttal();
+const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+  ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
+  : null;
 
-  const [rebuttalText, setRebuttalText] = useState('');
-  const [isOpen, setIsOpen] = useState(false);
+export function RebuttalForm({ reportId, propertyId }: RebuttalFormProps) {
+  const [email, setEmail] = useState('');
+  const [body, setBody] = useState('');
+  const [step, setStep] = useState<'form' | 'paying' | 'submitted'>('form');
+  const [error, setError] = useState('');
 
-  useEffect(() => {
-    if (isSuccess) {
-      setRebuttalText('');
-      setIsOpen(false);
-      onSuccess?.();
+  const handlePayAndSubmit = async () => {
+    if (!email || !body.trim()) return;
+    setError('');
+    setStep('paying');
+
+    try {
+      // In production, this would create a Stripe Checkout session via Edge Function
+      // For now, show a placeholder flow
+      if (!stripePromise) {
+        setError('Stripe is not configured. Set VITE_STRIPE_PUBLISHABLE_KEY in your environment.');
+        setStep('form');
+        return;
+      }
+
+      // TODO: Call Supabase Edge Function to create Stripe Checkout session
+      // The Edge Function would:
+      // 1. Create a Stripe Checkout session ($10)
+      // 2. On success webhook, insert the rebuttal into the database
+      // 3. Redirect back to the property page
+      
+      alert(`Payment flow placeholder: $10 rebuttal for report ${reportId} on property ${propertyId}\n\nIn production, this redirects to Stripe Checkout.\nEmail: ${email}\nRebuttal: ${body}`);
+      setStep('submitted');
+    } catch {
+      setError('Payment failed. Please try again.');
+      setStep('form');
     }
-  }, [isSuccess, onSuccess]);
+  };
 
-  const feeDisplay = rebuttalFee ? `$10 (${formatEther(rebuttalFee)} ETH)` : '$10';
-
-  if (!isOpen) {
+  if (step === 'submitted') {
     return (
-      <button
-        onClick={() => setIsOpen(true)}
-        className="mt-2 text-sm font-medium text-amber-700 hover:text-amber-800"
-      >
-        Are you the landlord? Submit a response ({feeDisplay})
-      </button>
+      <Card variant="success">
+        <div className="text-center">
+          <h4 className="text-lg font-semibold text-emerald-800">Rebuttal Submitted</h4>
+          <p className="mt-2 text-sm text-emerald-700">
+            Your response will appear alongside the report after payment confirmation.
+          </p>
+        </div>
+      </Card>
     );
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!rebuttalText.trim()) return;
-    submitRebuttal({
-      propertyAddress,
-      reportIndex,
-      rebuttalText: rebuttalText.trim(),
-    });
-  };
-
   return (
-    <Card className="mt-3 border-amber-200 bg-amber-50">
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <h4 className="text-sm font-semibold text-gray-900">Landlord Response</h4>
-        <p className="text-xs text-gray-600">
-          Your response will be displayed permanently alongside this report. Fee: {feeDisplay}
-        </p>
+    <Card className="border-teal-200 bg-teal-50/50">
+      <h4 className="mb-4 text-lg font-semibold text-text">Respond as Property Owner ($10)</h4>
+      <p className="mb-4 text-sm text-text-muted">
+        Property owners can respond to reports. A $10 fee helps prevent abuse. Your response will be displayed with a "Landlord Response" badge.
+      </p>
 
-        <Textarea
-          label=""
-          value={rebuttalText}
-          onChange={(e) => setRebuttalText(e.target.value)}
-          placeholder="Provide your response to this report..."
-          rows={4}
+      <div className="space-y-4">
+        <Input
+          label="Your email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="landlord@example.com"
           required
         />
 
-        {error && (
-          <p className="text-xs text-red-600">
-            {error.message.split('\n')[0]}
-          </p>
-        )}
+        <Textarea
+          label="Your response"
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          placeholder="Explain the actions taken to address this issue..."
+          maxLength={1000}
+          required
+        />
+        <p className="text-xs text-text-muted">{body.length}/1000 characters</p>
 
-        {isPending && (
-          <p className="text-xs text-yellow-700">Confirming your response...</p>
-        )}
+        {error && <p className="text-sm text-danger">{error}</p>}
 
-        {isConfirming && (
-          <p className="text-xs text-blue-700">Recording your response...</p>
-        )}
-
-        <div className="flex items-center justify-end gap-2">
-          <Button type="button" variant="ghost" onClick={() => setIsOpen(false)}>
-            Cancel
-          </Button>
-          {!authenticated ? (
-            <ConnectWallet />
-          ) : (
-            <Button type="submit" disabled={isPending || isConfirming || !rebuttalText.trim()}>
-              {isPending ? 'Confirming...' : isConfirming ? 'Submitting...' : `Submit Response (${feeDisplay})`}
-            </Button>
-          )}
-        </div>
-      </form>
+        <Button
+          onClick={handlePayAndSubmit}
+          disabled={!email || !body.trim() || step === 'paying'}
+          fullWidth
+        >
+          {step === 'paying' ? 'Processing...' : 'Pay $10 & Submit Response'}
+        </Button>
+      </div>
     </Card>
   );
-};
+}
