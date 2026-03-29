@@ -12,7 +12,7 @@ export function Header() {
   return (
     <>
       <header className="sticky top-0 z-50 border-b border-border bg-rice/95 backdrop-blur-sm">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1220px] px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
             <Link to="/" className="font-[var(--font-display)] text-xl font-bold text-ink transition-colors hover:text-sage-700" style={{ fontFamily: 'var(--font-display)' }}>
               SafeSpace

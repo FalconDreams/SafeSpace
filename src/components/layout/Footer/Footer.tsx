@@ -1,7 +1,7 @@
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-bamboo-50">
-      <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8">
+      <div className="mx-auto max-w-[1220px] px-4 py-10 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider text-text">Emergency Contacts</h3>
