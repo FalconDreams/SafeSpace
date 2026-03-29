@@ -149,7 +149,7 @@ export function ReportPage() {
 
   if (success) {
     return (
-      <div className="mx-auto max-w-2xl space-y-6">
+      <div className="space-y-6">
         <Card variant="success" className="text-center">
           <div className="space-y-4 py-4">
             <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sage-100">
@@ -176,7 +176,7 @@ export function ReportPage() {
   }
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-ink">Report a Health or Safety Issue</h1>
         <p className="mt-2 text-lg text-text-muted">

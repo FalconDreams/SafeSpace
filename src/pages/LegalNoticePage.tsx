@@ -183,7 +183,7 @@ export function LegalNoticePage() {
   const deadlineInfo = form.issueType ? getCityDeadlineInfo(form.citySlug, form.issueType) : null;
 
   return (
-    <div className="mx-auto max-w-2xl space-y-8">
+    <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-ink">Legal Notice Generator</h1>
         <p className="mt-2 text-lg text-text-muted">

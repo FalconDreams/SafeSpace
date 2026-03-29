@@ -67,7 +67,7 @@ export function HomePage() {
       </section>
 
       {/* Address Search */}
-      <section className="mx-auto max-w-xl">
+      <section className="mx-auto max-w-2xl">
         <form onSubmit={handleSearch} className="space-y-3">
           <div className="flex flex-col gap-2 sm:flex-row">
             <div className="flex-1">
