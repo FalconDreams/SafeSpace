@@ -6,3 +6,4 @@ export { TrackerPage } from './TrackerPage';
 export { KnowYourRightsPage } from './KnowYourRightsPage';
 export { LegalNoticePage } from './LegalNoticePage';
 export { ReviewPage } from './ReviewPage';
+export { CityPage } from './CityPage';

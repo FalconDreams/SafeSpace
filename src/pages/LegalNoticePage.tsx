@@ -1,37 +1,22 @@
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import { Button, Card, Input, Textarea, Select } from '../components/common';
+import { getCityBySlug, getCityDeadlineInfo, getSupportedCities } from '../data/cityRegistry';
 
 const issueTypes = [
-  { value: 'no-heat', label: 'No Heat (24-hour emergency)' },
-  { value: 'no-water', label: 'No Running Water (24-hour emergency)' },
-  { value: 'gas-leak', label: 'Gas Leak / Carbon Monoxide (24-hour emergency)' },
-  { value: 'sewage', label: 'Sewage Backup (24-hour emergency)' },
-  { value: 'mold', label: 'Mold (72-hour urgent)' },
-  { value: 'no-hot-water', label: 'No Hot Water (72-hour urgent)' },
-  { value: 'electrical', label: 'Electrical Issue (7-day repair)' },
-  { value: 'plumbing', label: 'Plumbing Issue (7-day repair)' },
-  { value: 'structural', label: 'Structural Issue (7-day repair)' },
-  { value: 'pests', label: 'Pest Infestation (7-day repair)' },
-  { value: 'other', label: 'Other Habitability Issue (30-day repair)' },
+  { value: 'no-heat', label: 'No Heat (Emergency)' },
+  { value: 'no-water', label: 'No Running Water (Emergency)' },
+  { value: 'gas-leak', label: 'Gas Leak / Carbon Monoxide (Emergency)' },
+  { value: 'sewage', label: 'Sewage Backup (Emergency)' },
+  { value: 'mold', label: 'Mold (Urgent)' },
+  { value: 'no-hot-water', label: 'No Hot Water (Urgent)' },
+  { value: 'electrical', label: 'Electrical Issue (Standard)' },
+  { value: 'plumbing', label: 'Plumbing Issue (Standard)' },
+  { value: 'structural', label: 'Structural Issue (Standard)' },
+  { value: 'pests', label: 'Pest Infestation (Standard)' },
+  { value: 'other', label: 'Other Habitability Issue (Standard)' },
 ];
-
-function getDeadlineInfo(issueType: string) {
-  const emergencyTypes = ['no-heat', 'no-water', 'gas-leak', 'sewage'];
-  const urgentTypes = ['mold', 'no-hot-water'];
-  const weekTypes = ['electrical', 'plumbing', 'structural', 'pests'];
-
-  if (emergencyTypes.includes(issueType)) {
-    return { hours: 24, label: '24 hours', statute: 'C.R.S. § 38-12-505(1)(a)' };
-  }
-  if (urgentTypes.includes(issueType)) {
-    return { hours: 72, label: '72 hours', statute: 'C.R.S. § 38-12-505(1)(b)' };
-  }
-  if (weekTypes.includes(issueType)) {
-    return { hours: 168, label: '7 days', statute: 'C.R.S. § 38-12-505(1)(c)' };
-  }
-  return { hours: 720, label: '30 days', statute: 'C.R.S. § 38-12-505(2)' };
-}
 
 function formatDate(date: Date): string {
   return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
@@ -44,11 +29,16 @@ function generatePDF(data: {
   issueType: string;
   description: string;
   dateNoticed: string;
+  citySlug: string;
 }) {
-  const deadline = getDeadlineInfo(data.issueType);
+  const deadline = getCityDeadlineInfo(data.citySlug, data.issueType);
+  const city = getCityBySlug(data.citySlug);
   const issueLabel = issueTypes.find(t => t.value === data.issueType)?.label || data.issueType;
   const today = new Date();
   const deadlineDate = new Date(today.getTime() + deadline.hours * 60 * 60 * 1000);
+
+  const cityState = city ? `${city.name}, ${city.stateCode}` : 'your jurisdiction';
+  const primaryLawName = city?.keyLaws[0]?.name || 'applicable tenant protection law';
 
   const doc = new jsPDF();
   const margin = 25;
@@ -70,7 +60,6 @@ function generatePDF(data: {
     }
   };
 
-  // Header
   addText('NOTICE OF HEALTH & SAFETY VIOLATION', 16, true, 10);
   addText('AND DEMAND FOR REPAIR', 14, true, 12);
   y += 5;
@@ -87,7 +76,7 @@ function generatePDF(data: {
   y += 3;
 
   addText(
-    `This letter serves as formal written notice of a health and safety violation at the above-referenced property, as required under Colorado law. This notice is being provided pursuant to ${deadline.statute} and the Boulder Revised Code.`,
+    `This letter serves as formal written notice of a health and safety violation at the above-referenced property, as required under ${cityState} law. This notice is being provided pursuant to ${deadline.statute} and the ${primaryLawName}.`,
     11, false, 6
   );
   y += 5;
@@ -105,22 +94,25 @@ function generatePDF(data: {
     11, false, 6
   );
   y += 3;
-  addText(
-    'Per Colorado Revised Statutes § 38-12-503, landlords must maintain rental properties in a condition fit for human habitation, including compliance with applicable building codes and health regulations.',
-    11, false, 6
-  );
+
+  if (city) {
+    for (const law of city.keyLaws.slice(0, 2)) {
+      addText(`${law.citation}: ${law.summary}`, 10, false, 6);
+      y += 2;
+    }
+  }
   y += 5;
 
   addText('TENANT REMEDIES', 12, true, 8);
   addText(
-    'Please be advised that if this issue is not remedied within the statutory timeframe, I may exercise the following remedies available under Colorado law:',
+    'Please be advised that if this issue is not remedied within the statutory timeframe, I may exercise the following remedies available under law:',
     11, false, 6
   );
   y += 2;
   const remedies = [
-    '1. Repair and deduct: Make necessary repairs and deduct the cost from rent (C.R.S. § 38-12-507)',
-    '2. Rent withholding: Withhold rent until repairs are completed (C.R.S. § 38-12-507)',
-    '3. Lease termination: Terminate the lease agreement without penalty (C.R.S. § 38-12-509)',
+    '1. Repair and deduct: Make necessary repairs and deduct the cost from rent',
+    '2. Rent withholding: Withhold rent until repairs are completed',
+    '3. Lease termination: Terminate the lease agreement without penalty',
     '4. Legal action: Pursue damages through the courts, including recovery of attorney fees',
   ];
   for (const remedy of remedies) {
@@ -150,7 +142,7 @@ function generatePDF(data: {
   doc.line(margin, y, pageWidth - margin, y);
   y += 8;
   addText(
-    'Generated by SafeSpace — Protecting Boulder Renters\' Health & Safety. This document is for informational purposes and does not constitute legal advice.',
+    `Generated by SafeSpace — Protecting Renters' Health & Safety. This document is for informational purposes and does not constitute legal advice.`,
     9, false, 5
   );
 
@@ -158,6 +150,12 @@ function generatePDF(data: {
 }
 
 export function LegalNoticePage() {
+  const [searchParams] = useSearchParams();
+  const cityParam = searchParams.get('city') || 'boulder';
+
+  const cities = getSupportedCities();
+  const cityOptions = cities.map((c) => ({ value: c.slug, label: `${c.name}, ${c.stateCode}` }));
+
   const [form, setForm] = useState({
     tenantName: '',
     address: '',
@@ -165,8 +163,11 @@ export function LegalNoticePage() {
     issueType: '',
     description: '',
     dateNoticed: '',
+    citySlug: cityParam,
   });
   const [generated, setGenerated] = useState(false);
+
+  const city = getCityBySlug(form.citySlug);
 
   const updateField = (field: string, value: string) =>
     setForm(prev => ({ ...prev, [field]: value }));
@@ -179,19 +180,26 @@ export function LegalNoticePage() {
     setGenerated(true);
   };
 
-  const deadlineInfo = form.issueType ? getDeadlineInfo(form.issueType) : null;
+  const deadlineInfo = form.issueType ? getCityDeadlineInfo(form.citySlug, form.issueType) : null;
 
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-ink">Legal Notice Generator</h1>
         <p className="mt-2 text-lg text-text-muted">
-          Generate a professional legal notice citing Boulder County and Colorado tenant protection laws.
+          Generate a professional legal notice citing {city ? `${city.name}, ${city.stateCode}` : 'local'} tenant protection laws.
         </p>
       </div>
 
       <Card>
         <div className="space-y-6">
+          <Select
+            label="City / Jurisdiction"
+            options={cityOptions}
+            value={form.citySlug}
+            onChange={e => updateField('citySlug', e.target.value)}
+          />
+
           <Input
             label="Your Full Name"
             placeholder="Jane Doe"
@@ -202,7 +210,7 @@ export function LegalNoticePage() {
 
           <Input
             label="Property Address"
-            placeholder="123 Pearl St, Boulder, CO 80302"
+            placeholder={city ? `123 Main St, ${city.name}, ${city.stateCode}` : '123 Main St'}
             value={form.address}
             onChange={e => updateField('address', e.target.value)}
             required
@@ -281,7 +289,7 @@ export function LegalNoticePage() {
           </li>
           <li className="flex gap-2">
             <span className="text-bamboo-600 font-bold">4.</span>
-            <span>Contact Colorado Legal Aid at (303) 837-1313 if you need additional help</span>
+            <span>Contact a local tenant legal aid service if you need additional help</span>
           </li>
         </ul>
       </Card>

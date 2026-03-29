@@ -3,6 +3,8 @@ import { supabase } from './supabase';
 export interface USPSValidationResult {
   valid: boolean;
   isBoulder: boolean;
+  supportedCity: string | null;
+  citySlug: string | null;
   address: {
     streetAddress: string;
     secondaryAddress: string;
@@ -24,7 +26,7 @@ export interface USPSValidationResult {
 
 /**
  * Validate a street address via the USPS Addresses API (proxied through Supabase Edge Function).
- * Returns normalized address, hash for dedup, and Boulder County verification.
+ * Returns normalized address, hash for dedup, and supported city verification.
  */
 export async function validateAddress(
   streetAddress: string,
@@ -45,8 +47,8 @@ export async function validateAddress(
     body: JSON.stringify({
       streetAddress,
       secondaryAddress: secondaryAddress || '',
-      city: city || 'Boulder',
-      state: state || 'CO',
+      city: city || '',
+      state: state || '',
       zipCode: zipCode || '',
     }),
   });
@@ -56,7 +58,14 @@ export async function validateAddress(
     throw new Error(errData.error || `USPS validation failed (${resp.status})`);
   }
 
-  return resp.json();
+  const data = await resp.json();
+  // Ensure backward compat fields exist
+  return {
+    ...data,
+    isBoulder: data.supportedCity === 'boulder',
+    supportedCity: data.supportedCity ?? data.citySlug ?? null,
+    citySlug: data.citySlug ?? data.supportedCity ?? null,
+  };
 }
 
 /**
@@ -83,7 +92,7 @@ export async function ensureProperty(result: USPSValidationResult) {
       city: result.address.city,
       state: result.address.state,
       zip: result.address.zipCode,
-    })
+    } as any)
     .select()
     .single();
 

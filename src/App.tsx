@@ -9,6 +9,7 @@ import {
   KnowYourRightsPage,
   LegalNoticePage,
   ReviewPage,
+  CityPage,
 } from './pages';
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
           <Route path="/know-your-rights" element={<KnowYourRightsPage />} />
           <Route path="/legal-notice" element={<LegalNoticePage />} />
           <Route path="/review" element={<ReviewPage />} />
+          <Route path="/city/:slug" element={<CityPage />} />
         </Routes>
       </Layout>
     </HashRouter>

@@ -108,7 +108,6 @@ export type Database = {
         Update: Partial<Database['public']['Tables']['helpful_votes']['Insert']>;
         Relationships: [];
       };
-    };
       landlords: {
         Row: {
           id: string;

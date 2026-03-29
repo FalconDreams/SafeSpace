@@ -1,17 +1,20 @@
 import { useState, type FormEvent } from 'react';
 import { Button, Input } from '../../common';
 import { validateAddress, type USPSValidationResult } from '../../../lib/usps';
+import { WaitlistForm } from '../Waitlist/WaitlistForm';
 
 interface PropertySearchProps {
   onSearch: (result: USPSValidationResult) => void;
   loading?: boolean;
+  citySlug?: string;
 }
 
-export function PropertySearch({ onSearch, loading }: PropertySearchProps) {
+export function PropertySearch({ onSearch, loading, citySlug: _citySlug }: PropertySearchProps) {
   const [streetAddress, setStreetAddress] = useState('');
   const [unit, setUnit] = useState('');
   const [validating, setValidating] = useState(false);
   const [error, setError] = useState('');
+  const [unsupportedCity, setUnsupportedCity] = useState<{ city: string; state: string; zip: string } | null>(null);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -20,6 +23,7 @@ export function PropertySearch({ onSearch, loading }: PropertySearchProps) {
 
     setError('');
     setValidating(true);
+    setUnsupportedCity(null);
 
     try {
       const result = await validateAddress(trimmed, unit.trim() || undefined);
@@ -29,10 +33,12 @@ export function PropertySearch({ onSearch, loading }: PropertySearchProps) {
         return;
       }
 
-      if (!result.isBoulder) {
-        setError(
-          `This address is in ${result.address.city}, ${result.address.state} ${result.address.zipCode}. SafeSpace currently covers Boulder County only.`
-        );
+      if (!result.supportedCity) {
+        setUnsupportedCity({
+          city: result.address.city,
+          state: result.address.state,
+          zip: result.address.zipCode,
+        });
         return;
       }
 
@@ -59,46 +65,52 @@ export function PropertySearch({ onSearch, loading }: PropertySearchProps) {
   const isLoading = loading || validating;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="flex-1">
-            <Input
-              placeholder="Street address (e.g. 1600 Pearl St)"
-              value={streetAddress}
-              onChange={(e) => {
-                setStreetAddress(e.target.value);
-                setError('');
-              }}
-              aria-label="Street address"
-            />
+    <div className="space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <div className="flex-1">
+              <Input
+                placeholder="Street address (e.g. 1600 Pearl St)"
+                value={streetAddress}
+                onChange={(e) => {
+                  setStreetAddress(e.target.value);
+                  setError('');
+                  setUnsupportedCity(null);
+                }}
+                aria-label="Street address"
+              />
+            </div>
+            <div className="w-full sm:w-36">
+              <Input
+                placeholder="Apt / Unit"
+                value={unit}
+                onChange={(e) => {
+                  setUnit(e.target.value);
+                  setError('');
+                }}
+                aria-label="Apartment or unit number"
+              />
+            </div>
           </div>
-          <div className="w-full sm:w-36">
-            <Input
-              placeholder="Apt / Unit"
-              value={unit}
-              onChange={(e) => {
-                setUnit(e.target.value);
-                setError('');
-              }}
-              aria-label="Apartment or unit number"
-            />
+          <div>
+            <Button type="submit" disabled={!streetAddress.trim() || isLoading}>
+              {isLoading ? 'Validating...' : 'Search Property'}
+            </Button>
           </div>
         </div>
-        <div>
-          <Button type="submit" disabled={!streetAddress.trim() || isLoading}>
-            {isLoading ? 'Validating...' : 'Search Property'}
-          </Button>
-        </div>
-      </div>
-      {error && (
-        <div className="rounded-lg bg-red-50 border border-red-200 p-3">
-          <p className="text-sm text-red-700">{error}</p>
-        </div>
+        {error && (
+          <div className="rounded-lg bg-red-50 border border-red-200 p-3">
+            <p className="text-sm text-red-700">{error}</p>
+          </div>
+        )}
+        <p className="text-sm text-text-muted">
+          Enter any street address in a supported city. We validate it with the USPS to ensure accuracy and prevent duplicates.
+        </p>
+      </form>
+      {unsupportedCity && (
+        <WaitlistForm city={unsupportedCity.city} state={unsupportedCity.state} zip={unsupportedCity.zip} />
       )}
-      <p className="text-sm text-text-muted">
-        Enter any Boulder County street address. We validate it with the USPS to ensure accuracy and prevent duplicates.
-      </p>
-    </form>
+    </div>
   );
 }

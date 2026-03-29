@@ -48,14 +48,6 @@ const severityOptions = [
   { value: 'standard', label: 'Standard (7–30 day repair window)' },
 ];
 
-async function hashAddress(address: string): Promise<string> {
-  const normalized = address.toLowerCase().replace(/[^a-z0-9\s]/g, '').trim().replace(/\s+/g, ' ');
-  const encoder = new TextEncoder();
-  const data = encoder.encode(normalized);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
 
 export function ReportPage() {
   const { user } = useAuth();
@@ -112,8 +104,8 @@ export function ReportPage() {
         setError('Address not found. Please enter a valid street address.');
         return;
       }
-      if (!uspsResult.isBoulder) {
-        setError(`This address is in ${uspsResult.address.city}, ${uspsResult.address.state}. SafeSpace currently covers Boulder County only.`);
+      if (!uspsResult.supportedCity) {
+        setError(`This address is in ${uspsResult.address.city}, ${uspsResult.address.state}. SafeSpace doesn't cover this area yet.`);
         return;
       }
 
@@ -144,7 +136,7 @@ export function ReportPage() {
         description: form.description,
         photo_urls: photoUrls.length > 0 ? photoUrls : null,
         is_anonymous: form.isAnonymous,
-      });
+      } as any);
 
       if (reportErr) throw reportErr;
       setSuccess(true);
