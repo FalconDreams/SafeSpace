@@ -117,11 +117,6 @@ export function HomePage() {
         </p>
       </section>
 
-      {/* Interactive Map */}
-      <section>
-        <CityMap />
-      </section>
-
       {/* Address Search */}
       <section className="mx-auto max-w-xl">
         <form onSubmit={handleSearch} className="space-y-3">
