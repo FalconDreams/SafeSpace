@@ -184,7 +184,7 @@ export function LegalNoticePage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-text">Legal Notice Generator</h1>
+        <h1 className="text-3xl font-bold text-ink">Legal Notice Generator</h1>
         <p className="mt-2 text-lg text-text-muted">
           Generate a professional legal notice citing Boulder County and Colorado tenant protection laws.
         </p>
@@ -225,8 +225,8 @@ export function LegalNoticePage() {
           />
 
           {deadlineInfo && (
-            <div className="rounded-lg border border-teal-200 bg-teal-50 p-4">
-              <p className="text-sm font-medium text-teal-800">
+            <div className="rounded-md border border-sage-200 bg-sage-50 p-4">
+              <p className="text-sm font-medium text-sage-800">
                 Legal deadline: <strong>{deadlineInfo.label}</strong> ({deadlineInfo.statute})
               </p>
             </div>
@@ -254,9 +254,9 @@ export function LegalNoticePage() {
           </Button>
 
           {generated && (
-            <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-center">
-              <p className="font-medium text-emerald-800">PDF downloaded successfully.</p>
-              <p className="mt-1 text-sm text-emerald-700">
+            <div className="rounded-md border border-sage-200 bg-sage-50 p-4 text-center">
+              <p className="font-medium text-sage-800">PDF downloaded successfully.</p>
+              <p className="mt-1 text-sm text-sage-700">
                 Print and deliver to your landlord via certified mail or hand delivery with a witness.
               </p>
             </div>
@@ -265,29 +265,29 @@ export function LegalNoticePage() {
       </Card>
 
       <Card className="bg-surface-muted">
-        <h3 className="mb-3 text-lg font-semibold text-text">Tips for Effective Notice</h3>
+        <h3 className="mb-3 text-lg font-semibold text-ink">Tips for Effective Notice</h3>
         <ul className="space-y-2 text-sm text-text-muted">
           <li className="flex gap-2">
-            <span className="text-teal-600 font-bold">1.</span>
+            <span className="text-bamboo-600 font-bold">1.</span>
             <span>Send via certified mail with return receipt for proof of delivery</span>
           </li>
           <li className="flex gap-2">
-            <span className="text-teal-600 font-bold">2.</span>
+            <span className="text-bamboo-600 font-bold">2.</span>
             <span>Keep a copy of the notice and all photographs for your records</span>
           </li>
           <li className="flex gap-2">
-            <span className="text-teal-600 font-bold">3.</span>
+            <span className="text-bamboo-600 font-bold">3.</span>
             <span>Follow up in writing if the landlord does not respond by the deadline</span>
           </li>
           <li className="flex gap-2">
-            <span className="text-teal-600 font-bold">4.</span>
+            <span className="text-bamboo-600 font-bold">4.</span>
             <span>Contact Colorado Legal Aid at (303) 837-1313 if you need additional help</span>
           </li>
         </ul>
       </Card>
 
-      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4">
-        <p className="text-sm text-amber-800">
+      <div className="rounded-md border border-bamboo-200 bg-bamboo-50 p-4">
+        <p className="text-sm text-bamboo-800">
           <strong>Disclaimer:</strong> This tool generates a template notice for informational purposes only.
           It does not constitute legal advice. For specific legal guidance, consult with a qualified attorney.
         </p>

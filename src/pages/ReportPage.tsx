@@ -1,4 +1,4 @@
-import { useState, type FormEvent, type ChangeEvent } from 'react';
+import { useState, useEffect, type FormEvent, type ChangeEvent } from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Card, Input, Textarea, Select } from '../components/common';
 import { ProtectedAction } from '../components/auth/ProtectedAction';
@@ -71,6 +71,18 @@ export function ReportPage() {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
+
+  // Severity color-shift: set data attribute on body
+  useEffect(() => {
+    if (form.severity) {
+      document.body.setAttribute('data-severity', form.severity);
+    } else {
+      document.body.removeAttribute('data-severity');
+    }
+    return () => {
+      document.body.removeAttribute('data-severity');
+    };
+  }, [form.severity]);
 
   const updateField = (field: string, value: string | boolean) =>
     setForm(prev => ({ ...prev, [field]: value }));
@@ -158,13 +170,13 @@ export function ReportPage() {
       <div className="mx-auto max-w-2xl space-y-6">
         <Card variant="success" className="text-center">
           <div className="space-y-4 py-4">
-            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100">
-              <svg className="h-8 w-8 text-emerald-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-sage-100">
+              <svg className="h-8 w-8 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <h2 className="text-2xl font-bold text-emerald-800">Report Submitted</h2>
-            <p className="text-emerald-700">
+            <h2 className="text-2xl font-bold text-sage-800">Report Submitted</h2>
+            <p className="text-sage-700">
               Your report has been recorded. This helps other tenants and builds a record of property conditions.
             </p>
             <div className="flex justify-center gap-4 pt-2">
@@ -184,7 +196,7 @@ export function ReportPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-8">
       <div>
-        <h1 className="text-3xl font-bold text-text">Report a Health or Safety Issue</h1>
+        <h1 className="text-3xl font-bold text-ink">Report a Health or Safety Issue</h1>
         <p className="mt-2 text-lg text-text-muted">
           Document violations to build a community record and protect future tenants.
         </p>
@@ -229,6 +241,20 @@ export function ReportPage() {
               required
             />
 
+            {form.severity && (
+              <div className={`rounded-md p-3 text-sm transition-colors duration-500 ${
+                form.severity === 'emergency_24h'
+                  ? 'bg-danger-bg text-danger border border-red-200'
+                  : form.severity === 'urgent_72h'
+                    ? 'bg-bamboo-50 text-bamboo-800 border border-bamboo-200'
+                    : 'bg-sage-50 text-sage-700 border border-sage-200'
+              }`}>
+                {form.severity === 'emergency_24h' && 'This requires landlord response within 24 hours by law.'}
+                {form.severity === 'urgent_72h' && 'This requires landlord response within 72 hours by law.'}
+                {form.severity === 'standard' && 'Standard repair window of 7–30 days applies.'}
+              </div>
+            )}
+
             <Textarea
               label="Description"
               placeholder="Describe the issue in detail. Include location within the unit, how long it's been occurring, and any health effects..."
@@ -248,7 +274,7 @@ export function ReportPage() {
                 accept="image/*"
                 multiple
                 onChange={handlePhotoChange}
-                className="block w-full text-sm text-text-muted file:mr-4 file:rounded-lg file:border-0 file:bg-teal-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-teal-700 hover:file:bg-teal-100"
+                className="block w-full text-sm text-text-muted file:mr-4 file:rounded-md file:border-0 file:bg-sage-50 file:px-4 file:py-2 file:text-sm file:font-medium file:text-sage-700 hover:file:bg-sage-100"
               />
               {photos.length > 0 && (
                 <div className="flex gap-3 pt-2">
@@ -257,7 +283,7 @@ export function ReportPage() {
                       <img
                         src={URL.createObjectURL(photo)}
                         alt={`Upload ${i + 1}`}
-                        className="h-20 w-20 rounded-lg object-cover border border-border"
+                        className="h-20 w-20 rounded-md object-cover border border-border"
                       />
                       <button
                         type="button"
@@ -277,7 +303,7 @@ export function ReportPage() {
                 type="checkbox"
                 checked={form.isAnonymous}
                 onChange={e => updateField('isAnonymous', e.target.checked)}
-                className="h-4 w-4 rounded border-border text-teal-600 focus:ring-teal-500"
+                className="h-4 w-4 rounded border-border text-sage-600 focus:ring-sage-500"
               />
               <span className="text-sm text-text">Submit anonymously</span>
             </label>
@@ -297,7 +323,7 @@ export function ReportPage() {
         </Card>
       </ProtectedAction>
 
-      <div className="rounded-xl bg-surface-muted p-6">
+      <div className="rounded-md bg-surface-muted p-6">
         <p className="text-sm text-text-muted">
           <strong>Privacy:</strong> Anonymous reports do not display your identity. Your account is
           used only to prevent abuse. Reports are publicly visible to help other renters research properties.

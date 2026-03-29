@@ -18,10 +18,10 @@ export function Input({ label, error, helperText, className = '', id, ...props }
       )}
       <input
         id={inputId}
-        className={`block w-full rounded-lg border bg-surface px-4 py-3 text-text shadow-sm placeholder:text-text-muted focus:outline-none focus:ring-2 sm:text-sm ${
+        className={`block w-full rounded-md border bg-surface px-4 py-3 text-text shadow-sm placeholder:text-text-muted focus:outline-none focus:ring-2 sm:text-sm ${
           error
             ? 'border-red-300 focus:border-red-500 focus:ring-red-500/20'
-            : 'border-border focus:border-teal-500 focus:ring-teal-500/20'
+            : 'border-border focus:border-sage-400 focus:ring-sage-400/20'
         } ${className}`}
         {...props}
       />

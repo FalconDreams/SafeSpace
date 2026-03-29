@@ -43,34 +43,34 @@ export function HomePage() {
   ];
 
   return (
-    <div className="space-y-12">
-      <section className="text-center">
-        <h1 className="text-4xl font-bold tracking-tight text-text sm:text-5xl">
+    <div className="space-y-14">
+      <section className="text-center pt-4">
+        <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">
           Protecting Boulder Renters'
-          <span className="text-teal-600"> Health & Safety</span>
+          <span className="text-sage-600"> Health & Safety</span>
         </h1>
-        <p className="mx-auto mt-4 max-w-2xl text-lg text-text-muted">
+        <p className="mx-auto mt-5 max-w-2xl text-lg text-text-muted leading-relaxed">
           Know your rights, report health violations, and hold landlords accountable under Boulder County law.
         </p>
       </section>
 
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((feature) => (
           <Link key={feature.link} to={feature.link}>
             <Card hover className="h-full">
-              <div className="mb-3 text-3xl">{feature.icon}</div>
-              <h3 className={`text-lg font-semibold ${feature.urgent ? 'text-danger' : 'text-text'}`}>
+              <div className="mb-3 text-2xl">{feature.icon}</div>
+              <h3 className={`text-lg font-semibold ${feature.urgent ? 'text-danger' : 'text-ink'}`}>
                 {feature.title}
               </h3>
-              <p className="mt-2 text-sm text-text-muted">{feature.description}</p>
+              <p className="mt-2 text-sm text-text-muted leading-relaxed">{feature.description}</p>
             </Card>
           </Link>
         ))}
       </div>
 
-      <section className="rounded-2xl bg-gradient-to-br from-teal-600 to-teal-700 p-8 text-center text-white shadow-lg">
+      <section className="rounded-lg bg-sage-700 p-8 text-center text-white">
         <h2 className="text-2xl font-bold">Facing a Health Emergency?</h2>
-        <p className="mt-2 text-teal-100">
+        <p className="mt-2 text-sage-100">
           Some issues require landlord response within 24 hours by law.
         </p>
         <Link to="/emergency-guide">

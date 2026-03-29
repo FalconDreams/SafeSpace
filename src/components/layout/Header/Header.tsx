@@ -11,10 +11,10 @@ export function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-50 border-b border-border bg-surface/95 backdrop-blur-sm">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-50 border-b border-border bg-rice/95 backdrop-blur-sm">
+        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <Link to="/" className="text-xl font-bold text-teal-700 transition-colors hover:text-teal-800">
+            <Link to="/" className="font-[var(--font-display)] text-xl font-bold text-ink transition-colors hover:text-sage-700" style={{ fontFamily: 'var(--font-display)' }}>
               SafeSpace
             </Link>
 
@@ -28,7 +28,7 @@ export function Header() {
                   <span className="text-sm text-text-muted">{user.email}</span>
                   <button
                     onClick={() => signOut()}
-                    className="rounded-lg px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-surface-muted hover:text-text"
+                    className="rounded-md px-3 py-2 text-sm font-medium text-text-muted transition-colors hover:bg-surface-muted hover:text-text"
                   >
                     Sign out
                   </button>
@@ -36,7 +36,7 @@ export function Header() {
               ) : (
                 <button
                   onClick={() => setShowAuth(true)}
-                  className="rounded-lg bg-teal-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-teal-700"
+                  className="rounded-md bg-sage-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-sage-700"
                 >
                   Sign in
                 </button>
@@ -45,7 +45,7 @@ export function Header() {
 
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="inline-flex items-center justify-center rounded-lg p-2 text-text-muted hover:bg-surface-muted hover:text-text focus:outline-none focus:ring-2 focus:ring-focus-ring focus:ring-inset md:hidden"
+              className="inline-flex items-center justify-center rounded-md p-2 text-text-muted hover:bg-surface-muted hover:text-text focus:outline-none focus:ring-2 focus:ring-focus-ring focus:ring-inset md:hidden"
               aria-expanded={isMobileMenuOpen}
               aria-label="Toggle menu"
             >
@@ -72,7 +72,7 @@ export function Header() {
                     <p className="px-3 text-sm text-text-muted">{user.email}</p>
                     <button
                       onClick={() => { signOut(); setIsMobileMenuOpen(false); }}
-                      className="block w-full rounded-lg px-3 py-2 text-left text-base font-medium text-text-muted hover:bg-surface-muted"
+                      className="block w-full rounded-md px-3 py-2 text-left text-base font-medium text-text-muted hover:bg-surface-muted"
                     >
                       Sign out
                     </button>
@@ -80,7 +80,7 @@ export function Header() {
                 ) : (
                   <button
                     onClick={() => { setShowAuth(true); setIsMobileMenuOpen(false); }}
-                    className="w-full rounded-lg bg-teal-600 px-4 py-2.5 text-center font-medium text-white hover:bg-teal-700"
+                    className="w-full rounded-md bg-sage-600 px-4 py-2.5 text-center font-medium text-white hover:bg-sage-700"
                   >
                     Sign in
                   </button>

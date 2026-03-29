@@ -16,8 +16,8 @@ export function Navigation({ mobile = false, onNavigate }: NavigationProps) {
   ];
 
   const baseClasses = mobile
-    ? 'block px-3 py-2.5 text-base font-medium rounded-lg'
-    : 'px-3 py-2 text-sm font-medium rounded-lg';
+    ? 'block px-3 py-2.5 text-base font-medium rounded-md'
+    : 'px-3 py-2 text-sm font-medium rounded-md';
 
   return (
     <nav className={mobile ? 'space-y-1' : 'flex space-x-1'}>
@@ -31,10 +31,10 @@ export function Navigation({ mobile = false, onNavigate }: NavigationProps) {
             className={`${baseClasses} transition-colors duration-200 ${
               item.urgent
                 ? isActive
-                  ? 'bg-red-50 text-danger font-semibold'
-                  : 'text-danger hover:bg-red-50'
+                  ? 'bg-danger-bg text-danger font-semibold'
+                  : 'text-danger hover:bg-danger-bg'
                 : isActive
-                  ? 'bg-teal-50 text-teal-700 font-semibold'
+                  ? 'bg-sage-50 text-sage-700 font-semibold'
                   : 'text-text-muted hover:bg-surface-muted hover:text-text'
             }`}
           >

@@ -51,11 +51,11 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
   if (confirmationSent) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-        <div className="w-full max-w-md rounded-xl bg-surface p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
+        <div className="w-full max-w-md rounded-lg bg-surface p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
           <div className="text-center">
-            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-teal-100">
-              <svg className="h-6 w-6 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-sage-100">
+              <svg className="h-6 w-6 text-sage-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
               </svg>
             </div>
@@ -63,7 +63,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
             <p className="mt-2 text-text-muted">
               We sent a confirmation link to <strong>{email}</strong>. Click the link to activate your account.
             </p>
-            <button onClick={onClose} className="mt-6 rounded-lg bg-teal-600 px-6 py-2 text-white hover:bg-teal-700 transition-colors">
+            <button onClick={onClose} className="mt-6 rounded-md bg-sage-600 px-6 py-2 text-white hover:bg-sage-700 transition-colors">
               Got it
             </button>
           </div>
@@ -73,8 +73,8 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-xl bg-surface p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-lg bg-surface p-8 shadow-2xl" onClick={(e) => e.stopPropagation()}>
         <div className="mb-6 text-center">
           <h2 className="text-2xl font-bold text-text">
             {mode === 'login' ? 'Welcome back' : 'Create your account'}
@@ -86,7 +86,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
         <button
           onClick={handleGoogle}
-          className="flex w-full items-center justify-center gap-3 rounded-lg border border-border bg-surface px-4 py-3 font-medium text-text transition-colors hover:bg-surface-muted"
+          className="flex w-full items-center justify-center gap-3 rounded-md border border-border bg-surface px-4 py-3 font-medium text-text transition-colors hover:bg-surface-muted"
         >
           <svg className="h-5 w-5" viewBox="0 0 24 24">
             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -112,7 +112,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-border bg-surface px-4 py-3 text-text placeholder:text-text-muted focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="mt-1 block w-full rounded-md border border-border bg-surface px-4 py-3 text-text placeholder:text-text-muted focus:border-sage-400 focus:outline-none focus:ring-2 focus:ring-sage-400/20"
               placeholder="you@example.com"
             />
           </div>
@@ -126,19 +126,19 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
               minLength={6}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="mt-1 block w-full rounded-lg border border-border bg-surface px-4 py-3 text-text placeholder:text-text-muted focus:border-teal-500 focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+              className="mt-1 block w-full rounded-md border border-border bg-surface px-4 py-3 text-text placeholder:text-text-muted focus:border-sage-400 focus:outline-none focus:ring-2 focus:ring-sage-400/20"
               placeholder="At least 6 characters"
             />
           </div>
 
           {error && (
-            <div className="rounded-lg bg-danger-bg p-3 text-sm text-danger">{error}</div>
+            <div className="rounded-md bg-danger-bg p-3 text-sm text-danger">{error}</div>
           )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-teal-600 px-4 py-3 font-medium text-white transition-colors hover:bg-teal-700 disabled:opacity-50"
+            className="w-full rounded-md bg-sage-600 px-4 py-3 font-medium text-white transition-colors hover:bg-sage-700 disabled:opacity-50"
           >
             {loading ? 'Loading...' : mode === 'login' ? 'Sign in' : 'Create account'}
           </button>
@@ -148,7 +148,7 @@ export function AuthModal({ isOpen, onClose }: AuthModalProps) {
           {mode === 'login' ? "Don't have an account? " : 'Already have an account? '}
           <button
             onClick={() => { setMode(mode === 'login' ? 'signup' : 'login'); setError(''); }}
-            className="font-medium text-teal-600 hover:text-teal-700"
+            className="font-medium text-sage-600 hover:text-sage-700"
           >
             {mode === 'login' ? 'Sign up' : 'Sign in'}
           </button>
