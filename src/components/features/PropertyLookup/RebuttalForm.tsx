@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import { Card, Button, Input, Textarea } from '../../common';
-import { supabase } from '../../../lib/supabase';
 
 interface RebuttalFormProps {
   reportId: string;
   propertyId: string;
 }
+
+const REBUTTAL_PRICE_ID = 'price_1TGvYr3mPzsVWwtASfSMXL5K';
 
 const stripePromise = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
   ? loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY)
@@ -31,32 +32,27 @@ export function RebuttalForm({ reportId, propertyId }: RebuttalFormProps) {
         return;
       }
 
-      // Insert rebuttal into Supabase with a placeholder payment ID
-      // In production, this would be done via webhook after payment confirmation
-      const paymentRef = `pending_${Date.now()}_${Math.random().toString(36).slice(2)}`;
-      const { error: insertErr } = await supabase.from('rebuttals').insert({
+      // Store rebuttal data in sessionStorage so webhook can reference it
+      // The actual DB insert happens via Stripe webhook after payment confirmation
+      sessionStorage.setItem('pending_rebuttal', JSON.stringify({
         report_id: reportId,
         property_id: propertyId,
         landlord_email: email,
         body: body.trim(),
-        stripe_payment_id: paymentRef,
-      });
-
-      if (insertErr) throw insertErr;
+      }));
 
       // Redirect to Stripe Checkout for $10 rebuttal fee
       const { error: stripeErr } = await stripe.redirectToCheckout({
-        lineItems: [{ price: 'price_rebuttal_10', quantity: 1 }],
+        lineItems: [{ price: REBUTTAL_PRICE_ID, quantity: 1 }],
         mode: 'payment',
-        successUrl: `${window.location.origin}/#/property-lookup?payment=success`,
+        successUrl: `${window.location.origin}/#/property-lookup?payment=success&report=${reportId}&property=${propertyId}`,
         cancelUrl: `${window.location.origin}/#/property-lookup?payment=cancelled`,
         customerEmail: email,
       });
 
       if (stripeErr) {
-        // Stripe redirect failed — still show submitted since rebuttal is saved
-        console.warn('Stripe redirect failed:', stripeErr.message);
-        setStep('submitted');
+        setError('Could not connect to payment processor. Please try again.');
+        setStep('form');
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Submission failed. Please try again.');
