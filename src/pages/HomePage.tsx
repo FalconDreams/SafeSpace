@@ -10,7 +10,6 @@ export function HomePage() {
   const navigate = useNavigate();
   const cities = getSupportedCities();
 
-  const [address, setAddress] = useState('');
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [unsupportedCity, setUnsupportedCity] = useState<{ city: string; state: string; zip: string } | null>(null);
@@ -41,9 +40,8 @@ export function HomePage() {
       {/* Address Search */}
       <section className="mx-auto max-w-2xl">
         <AddressAutocomplete
-          onSelect={(addr) => { setAddress(addr); setSearchError(''); setUnsupportedCity(null); }}
+          onSelect={() => { setSearchError(''); setUnsupportedCity(null); }}
           onSubmit={async (addr) => {
-            setAddress(addr);
             setSearching(true);
             setSearchError('');
             setUnsupportedCity(null);
