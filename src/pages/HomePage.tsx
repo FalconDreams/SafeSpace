@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Button, Card, Input } from '../components/common';
+import { Button, Card } from '../components/common';
 import { getSupportedCities } from '../data/cityRegistry';
 import { validateAddress } from '../lib/usps';
 import { WaitlistForm } from '../components/features/Waitlist/WaitlistForm';
@@ -14,35 +14,6 @@ export function HomePage() {
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [unsupportedCity, setUnsupportedCity] = useState<{ city: string; state: string; zip: string } | null>(null);
-
-  const handleSearch = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!address.trim()) return;
-    setSearching(true);
-    setSearchError('');
-    setUnsupportedCity(null);
-
-    try {
-      const result = await validateAddress(address.trim());
-      if (!result.valid) {
-        setSearchError('Address not found. Please enter a valid street address.');
-        return;
-      }
-      if (result.citySlug) {
-        navigate(`/city/${result.citySlug}`);
-      } else {
-        setUnsupportedCity({
-          city: result.address.city,
-          state: result.address.state,
-          zip: result.address.zipCode,
-        });
-      }
-    } catch (err) {
-      setSearchError(err instanceof Error ? err.message : 'Unable to validate address.');
-    } finally {
-      setSearching(false);
-    }
-  };
 
   const features = [
     { title: 'Emergency Health Guide', description: 'Get immediate guidance for health emergencies with legally mandated response deadlines.', link: '/emergency-guide', icon: '\u{1F6A8}', urgent: true },
