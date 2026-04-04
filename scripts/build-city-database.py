@@ -149,6 +149,7 @@ def main():
         "safespace-100k-cities.json",
         "safespace-micro-cities.json",
         "safespace-micro-cities-fixed.json",
+        "safespace-micro-remaining.json",
         "safespace-small-cities.json",
     ]
 

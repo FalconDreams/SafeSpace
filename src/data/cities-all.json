@@ -1,6 +1,6 @@
 {
   "generated": "2026-04-03",
-  "totalCities": 451,
+  "totalCities": 458,
   "totalStates": 54,
   "cities": [
     {
@@ -183,6 +183,49 @@
         "codeEnforcement": {
           "name": "",
           "phone": ""
+        }
+      }
+    },
+    {
+      "slug": "tuscaloosa-al",
+      "city": "Tuscaloosa",
+      "state": "AL",
+      "population": 99543,
+      "tenantProtectionScore": 3,
+      "rentControlExists": false,
+      "justCauseEviction": false,
+      "retaliationProtection": true,
+      "keyLaws": [
+        {
+          "name": "Alabama Uniform Residential Landlord and Tenant Act",
+          "citation": "Code of Ala. \u00a7 35-9A-101 et seq.",
+          "summary": "Requires landlords to maintain habitable premises; provides tenant remedies including repair-and-deduct and rent withholding in limited circumstances."
+        },
+        {
+          "name": "Alabama Retaliation Prohibition",
+          "citation": "Code of Ala. \u00a7 35-9A-501",
+          "summary": "Prohibits retaliatory eviction or rent increases within 6 months of a protected tenant complaint or activity."
+        },
+        {
+          "name": "Alabama Security Deposit Act",
+          "citation": "Code of Ala. \u00a7 35-9A-201",
+          "summary": "Security deposit capped at 1 months rent; landlord must return within 60 days with written itemized list of deductions."
+        }
+      ],
+      "repairDeadlines": {
+        "emergency": "24h",
+        "urgent": "14 days",
+        "standard": "14 days"
+      },
+      "securityDepositRules": "Maximum 1 months rent; returned within 60 days with itemized deductions.",
+      "enforcement": {
+        "healthDept": {
+          "name": "Tuscaloosa County Health Department",
+          "phone": "(205) 554-4520"
+        },
+        "codeEnforcement": {
+          "name": "City of Tuscaloosa Code Enforcement",
+          "phone": "(205) 248-5300"
         }
       }
     },
@@ -448,6 +491,49 @@
         "codeEnforcement": {
           "name": "",
           "phone": ""
+        }
+      }
+    },
+    {
+      "slug": "flagstaff-az",
+      "city": "Flagstaff",
+      "state": "AZ",
+      "population": 76531,
+      "tenantProtectionScore": 5,
+      "rentControlExists": false,
+      "justCauseEviction": false,
+      "retaliationProtection": true,
+      "keyLaws": [
+        {
+          "name": "Arizona Residential Landlord and Tenant Act",
+          "citation": "ARS \u00a7 33-1301 et seq.",
+          "summary": "Establishes landlord duties to maintain fit premises, tenant remedies for breach, and notice periods for lease termination."
+        },
+        {
+          "name": "Arizona Anti-Retaliation Statute",
+          "citation": "ARS \u00a7 33-1381",
+          "summary": "Prohibits retaliatory eviction or service reduction within 60 days of a tenants good-faith complaint."
+        },
+        {
+          "name": "Arizona Security Deposit Law",
+          "citation": "ARS \u00a7 33-1321",
+          "summary": "Security deposit limited to 1.5 months rent; returned within 14 business days after lease ends."
+        }
+      ],
+      "repairDeadlines": {
+        "emergency": "Immediate",
+        "urgent": "5 days (essential services after written notice)",
+        "standard": "10 days (after written notice)"
+      },
+      "securityDepositRules": "Maximum 1.5 months rent; returned within 14 business days with itemized deductions.",
+      "enforcement": {
+        "healthDept": {
+          "name": "Coconino County Health and Human Services",
+          "phone": "(928) 679-7222"
+        },
+        "codeEnforcement": {
+          "name": "Flagstaff Development Services - Code Enforcement",
+          "phone": "(928) 213-2600"
         }
       }
     },
@@ -4817,6 +4903,49 @@
       }
     },
     {
+      "slug": "iowa-city-ia",
+      "city": "Iowa City",
+      "state": "IA",
+      "population": 74063,
+      "tenantProtectionScore": 6,
+      "rentControlExists": false,
+      "justCauseEviction": false,
+      "retaliationProtection": true,
+      "keyLaws": [
+        {
+          "name": "Iowa Uniform Residential Landlord and Tenant Act",
+          "citation": "Iowa Code Ch. 562A",
+          "summary": "Comprehensive URLTA covering landlord habitability duties, tenant rights, notice requirements, and remedies including rent escrow."
+        },
+        {
+          "name": "Iowa Anti-Retaliation Protection",
+          "citation": "Iowa Code \u00a7 562A.36",
+          "summary": "Prohibits retaliatory rent increases, evictions, or service reductions after tenant exercises legal rights."
+        },
+        {
+          "name": "Iowa Security Deposit Act",
+          "citation": "Iowa Code \u00a7 562A.12",
+          "summary": "Security deposit limited to 2 months rent; must be returned within 30 days of termination with itemized deductions."
+        }
+      ],
+      "repairDeadlines": {
+        "emergency": "24h",
+        "urgent": "7 days (essential services)",
+        "standard": "30 days"
+      },
+      "securityDepositRules": "Maximum 2 months rent; returned within 30 days with itemized deductions.",
+      "enforcement": {
+        "healthDept": {
+          "name": "Johnson County Public Health",
+          "phone": "(319) 356-6040"
+        },
+        "codeEnforcement": {
+          "name": "Iowa City Housing and Inspection Services",
+          "phone": "(319) 356-5120"
+        }
+      }
+    },
+    {
       "slug": "boise-id",
       "city": "Boise",
       "state": "ID",
@@ -5043,6 +5172,49 @@
       }
     },
     {
+      "slug": "champaign-il",
+      "city": "Champaign",
+      "state": "IL",
+      "population": 88302,
+      "tenantProtectionScore": 7,
+      "rentControlExists": false,
+      "justCauseEviction": false,
+      "retaliationProtection": true,
+      "keyLaws": [
+        {
+          "name": "Champaign Residential Tenant and Landlord Ordinance",
+          "citation": "Champaign Municipal Code Ch. 9.5",
+          "summary": "Strong local ordinance providing extra habitability protections, unit inspection rights, late fee caps, and enhanced retaliation safeguards beyond state law."
+        },
+        {
+          "name": "Illinois Landlord Retaliation Act",
+          "citation": "765 ILCS 720",
+          "summary": "Prohibits retaliatory eviction or material change in lease terms for exercising tenant rights or complaining to authorities."
+        },
+        {
+          "name": "Illinois Tenants Right to Repair Act",
+          "citation": "765 ILCS 735",
+          "summary": "Allows tenants to repair essential services and deduct costs from rent after landlord fails to act within 14 days of written notice."
+        }
+      ],
+      "repairDeadlines": {
+        "emergency": "24h",
+        "urgent": "72h",
+        "standard": "14 days (after written notice)"
+      },
+      "securityDepositRules": "No statewide cap; Champaign RTLO requires written receipt and interest on deposits held over 6 months. Returned within 30 days after lease end.",
+      "enforcement": {
+        "healthDept": {
+          "name": "Champaign-Urbana Public Health District",
+          "phone": "(217) 352-7961"
+        },
+        "codeEnforcement": {
+          "name": "Champaign Code Compliance Division",
+          "phone": "(217) 403-7070"
+        }
+      }
+    },
+    {
       "slug": "elgin-il",
       "city": "Elgin",
       "state": "IL",
@@ -5222,6 +5394,49 @@
         "codeEnforcement": {
           "name": "",
           "phone": ""
+        }
+      }
+    },
+    {
+      "slug": "bloomington-in",
+      "city": "Bloomington",
+      "state": "IN",
+      "population": 84067,
+      "tenantProtectionScore": 4,
+      "rentControlExists": false,
+      "justCauseEviction": false,
+      "retaliationProtection": true,
+      "keyLaws": [
+        {
+          "name": "Indiana Residential Landlord-Tenant Act",
+          "citation": "IC 32-31",
+          "summary": "Governs landlord duties to maintain habitable premises, security deposit procedures, and notice requirements for lease termination."
+        },
+        {
+          "name": "Indiana Anti-Retaliation Statute",
+          "citation": "IC 32-31-8.5",
+          "summary": "Prohibits landlords from retaliating against tenants who report code violations or assert legal rights."
+        },
+        {
+          "name": "Indiana Security Deposit Law",
+          "citation": "IC 32-31-3",
+          "summary": "Landlord must return security deposit within 45 days of lease termination with itemized statement of deductions."
+        }
+      ],
+      "repairDeadlines": {
+        "emergency": "24h",
+        "urgent": "Reasonable time (7 days)",
+        "standard": "Reasonable time (30 days)"
+      },
+      "securityDepositRules": "No statutory maximum; must be returned within 45 days with itemized deductions.",
+      "enforcement": {
+        "healthDept": {
+          "name": "Monroe County Health Department",
+          "phone": "(812) 349-2543"
+        },
+        "codeEnforcement": {
+          "name": "Bloomington Code Enforcement Division",
+          "phone": "(812) 349-3420"
         }
       }
     },
@@ -5686,6 +5901,49 @@
         "codeEnforcement": {
           "name": "",
           "phone": ""
+        }
+      }
+    },
+    {
+      "slug": "lawrence-ks",
+      "city": "Lawrence",
+      "state": "KS",
+      "population": 95358,
+      "tenantProtectionScore": 5,
+      "rentControlExists": false,
+      "justCauseEviction": false,
+      "retaliationProtection": true,
+      "keyLaws": [
+        {
+          "name": "Kansas Residential Landlord and Tenant Act",
+          "citation": "K.S.A. 58-2540 et seq.",
+          "summary": "Establishes landlord habitability duties, notice requirements, and tenant remedies including repair-and-deduct after written notice."
+        },
+        {
+          "name": "Kansas Anti-Retaliation Law",
+          "citation": "K.S.A. 58-2572",
+          "summary": "Protects tenants who report code violations or organize tenant unions from retaliatory eviction or rent increases."
+        },
+        {
+          "name": "Kansas Security Deposit Statute",
+          "citation": "K.S.A. 58-2550",
+          "summary": "Deposit capped at 1 month rent (unfurnished) or 1.5 months (furnished); returned within 30 days with itemized deductions."
+        }
+      ],
+      "repairDeadlines": {
+        "emergency": "24h",
+        "urgent": "14 days (after written notice)",
+        "standard": "14 days (after written notice)"
+      },
+      "securityDepositRules": "Maximum 1 month rent unfurnished, 1.5 months furnished; returned within 30 days with itemized deductions.",
+      "enforcement": {
+        "healthDept": {
+          "name": "Lawrence-Douglas County Health Department",
+          "phone": "(785) 843-4560"
+        },
+        "codeEnforcement": {
+          "name": "Lawrence Code Enforcement Division",
+          "phone": "(785) 832-3190"
         }
       }
     },
@@ -6666,6 +6924,49 @@
         "codeEnforcement": {
           "name": "",
           "phone": ""
+        }
+      }
+    },
+    {
+      "slug": "missoula-mt",
+      "city": "Missoula",
+      "state": "MT",
+      "population": 73489,
+      "tenantProtectionScore": 7,
+      "rentControlExists": false,
+      "justCauseEviction": false,
+      "retaliationProtection": true,
+      "keyLaws": [
+        {
+          "name": "Montana Residential Landlord and Tenant Act",
+          "citation": "MCA Title 70, Ch. 24",
+          "summary": "Comprehensive URLTA-based law with strong habitability standards, specific repair deadlines, and tenant remedies."
+        },
+        {
+          "name": "Montana Anti-Retaliation Protection",
+          "citation": "MCA \u00a7 70-24-431",
+          "summary": "Landlords may not retaliate within 90 days of tenants protected complaint or exercise of rights."
+        },
+        {
+          "name": "Missoula Tenant Protections Ordinance",
+          "citation": "Missoula Municipal Code Title 5",
+          "summary": "Local ordinance requiring extended notice periods for rent increases and additional habitability standards beyond state law."
+        }
+      ],
+      "repairDeadlines": {
+        "emergency": "24h",
+        "urgent": "3 business days",
+        "standard": "14 days"
+      },
+      "securityDepositRules": "No statutory maximum; returned within 30 days (10 days if no deductions) with itemized statement.",
+      "enforcement": {
+        "healthDept": {
+          "name": "Missoula City-County Health Department",
+          "phone": "(406) 258-4755"
+        },
+        "codeEnforcement": {
+          "name": "Missoula Development Services - Code Enforcement",
+          "phone": "(406) 552-6064"
         }
       }
     },
