@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Card } from '../components/common';
 import { getSupportedCities, getCityBySlug } from '../data/cityRegistry';
+import { getResearchCityByName, getStats } from '../data/cityDatabase';
 import { validateAddress } from '../lib/usps';
 import { AddressAutocomplete } from '../components/features/AddressAutocomplete';
 
@@ -26,14 +27,15 @@ interface AddressResult {
 export function HomePage() {
   const navigate = useNavigate();
   const cities = getSupportedCities();
+  const dbStats = getStats();
 
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [result, setResult] = useState<AddressResult | null>(null);
 
   const stats = [
-    { value: '454+', label: 'Jurisdictions Researched' },
-    { value: '11', label: 'Cities with Full Data' },
+    { value: `${dbStats.totalCities}+`, label: 'Cities Researched' },
+    { value: '54', label: 'States & Territories' },
     { value: '7', label: 'Review Categories' },
     { value: 'Free', label: 'Always' },
   ];
@@ -106,16 +108,19 @@ export function HomePage() {
         </div>
         <AddressAutocomplete
           onSelect={() => { setSearchError(''); setResult(null); }}
-          onSubmit={async (addr) => {
+          onSubmit={async (inputAddr) => {
             setSearching(true);
             setSearchError('');
             setResult(null);
             try {
-              const res = await validateAddress(addr);
+              const res = await validateAddress(inputAddr);
               if (!res.valid) {
                 setSearchError('Address not found. Please enter a valid US street address.');
                 return;
               }
+              const fullAddr = `${res.address.streetAddress}, ${res.address.city}, ${res.address.state} ${res.address.zipCode}`;
+              
+              // Try deep-data city first
               if (res.citySlug) {
                 const city = getCityBySlug(res.citySlug);
                 if (city) {
@@ -123,21 +128,32 @@ export function HomePage() {
                     citySlug: res.citySlug,
                     cityName: city.name,
                     state: city.stateCode,
-                    address: `${res.address.streetAddress}, ${res.address.city}, ${res.address.state} ${res.address.zipCode}`,
+                    address: fullAddr,
                     protectionScore: city.keyLaws.length >= 6 ? 7 : city.keyLaws.length >= 4 ? 5 : 3,
                   });
                 } else {
                   navigate(`/city/${res.citySlug}`);
                 }
               } else {
-                // Unsupported city — still show what we can
-                setResult({
-                  citySlug: '',
-                  cityName: res.address.city,
-                  state: res.address.state,
-                  address: `${res.address.streetAddress}, ${res.address.city}, ${res.address.state} ${res.address.zipCode}`,
-                  protectionScore: 0,
-                });
+                // Try research database
+                const researchCity = getResearchCityByName(res.address.city, res.address.state);
+                if (researchCity) {
+                  setResult({
+                    citySlug: researchCity.slug,
+                    cityName: researchCity.city,
+                    state: researchCity.state,
+                    address: fullAddr,
+                    protectionScore: researchCity.tenantProtectionScore,
+                  });
+                } else {
+                  setResult({
+                    citySlug: '',
+                    cityName: res.address.city,
+                    state: res.address.state,
+                    address: fullAddr,
+                    protectionScore: 0,
+                  });
+                }
               }
             } catch (err) {
               setSearchError(err instanceof Error ? err.message : 'Unable to validate address.');
@@ -240,7 +256,7 @@ export function HomePage() {
         <h2 className="text-2xl font-bold text-ink text-center mb-2">Cities with Full Coverage</h2>
         <p className="text-center text-text-muted mb-8 max-w-xl mx-auto">
           Deep local data — laws, deadlines, enforcement contacts, emergency resources.
-          More cities coming from our 454-jurisdiction research database.
+          {dbStats.totalCities - cities.length} more cities available in our research database.
         </p>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {cities.map((city) => (
@@ -262,6 +278,13 @@ export function HomePage() {
           ))}
         </div>
       </section>
+
+      {/* Browse All */}
+      <div className="text-center">
+        <Link to="/cities">
+          <Button variant="secondary" size="lg">Browse All {dbStats.totalCities}+ Cities →</Button>
+        </Link>
+      </div>
 
       {/* How It Works */}
       <section className="max-w-3xl mx-auto">
