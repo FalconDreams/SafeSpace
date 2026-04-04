@@ -1,10 +1,27 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button, Card } from '../components/common';
-import { getSupportedCities } from '../data/cityRegistry';
+import { getSupportedCities, getCityBySlug } from '../data/cityRegistry';
 import { validateAddress } from '../lib/usps';
-import { WaitlistForm } from '../components/features/Waitlist/WaitlistForm';
 import { AddressAutocomplete } from '../components/features/AddressAutocomplete';
+
+function SafetyScoreBadge({ score }: { score: number }) {
+  const color = score >= 7 ? 'bg-green-100 text-green-800' : score >= 4 ? 'bg-yellow-100 text-yellow-800' : 'bg-red-100 text-red-800';
+  const label = score >= 7 ? 'Strong' : score >= 4 ? 'Moderate' : 'Weak';
+  return (
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-xs font-semibold ${color}`}>
+      {score}/10 — {label} Protections
+    </span>
+  );
+}
+
+interface AddressResult {
+  citySlug: string;
+  cityName: string;
+  state: string;
+  address: string;
+  protectionScore: number;
+}
 
 export function HomePage() {
   const navigate = useNavigate();
@@ -12,59 +29,115 @@ export function HomePage() {
 
   const [searching, setSearching] = useState(false);
   const [searchError, setSearchError] = useState('');
-  const [unsupportedCity, setUnsupportedCity] = useState<{ city: string; state: string; zip: string } | null>(null);
+  const [result, setResult] = useState<AddressResult | null>(null);
 
-  const features = [
-    { title: 'Emergency Health Guide', description: 'Get immediate guidance for health emergencies with legally mandated response deadlines.', link: '/emergency-guide', icon: '\u{1F6A8}', urgent: true },
-    { title: 'Property Lookup', description: 'Research property health history and read community experiences.', link: '/property-lookup', icon: '\u{1F50D}' },
-    { title: 'Report Health Issues', description: 'Submit health violations with photo evidence and anonymous options.', link: '/report', icon: '\u{1F4CB}' },
-    { title: 'Track Landlord Response', description: 'Monitor compliance with legal deadlines and document responses.', link: '/tracker', icon: '\u{23F1}\uFE0F' },
-    { title: 'Know Your Rights', description: 'Learn about tenant health and safety protections in your city.', link: '/know-your-rights', icon: '⚖️' },
-    { title: 'Legal Notice Generator', description: 'Generate professional legal notices citing your local tenant protection laws.', link: '/legal-notice', icon: '📄' },
-    { title: 'Rate Your Rental Experience', description: 'Rate your landlord across 7 categories and help future tenants.', link: '/review', icon: '⭐' },
+  const stats = [
+    { value: '454+', label: 'Jurisdictions Researched' },
+    { value: '11', label: 'Cities with Full Data' },
+    { value: '7', label: 'Review Categories' },
+    { value: 'Free', label: 'Always' },
+  ];
+
+  const flows = [
+    {
+      icon: '🛡️',
+      title: 'Safety Check',
+      desc: 'Enter your address to see your tenant rights, landlord response deadlines, enforcement contacts, and local legal resources.',
+      link: '/property-lookup',
+      cta: 'Check My Address',
+    },
+    {
+      icon: '⭐',
+      title: 'Review Your Rental',
+      desc: 'Rate your landlord across 7 categories — responsiveness, fairness, respect, temperament, condition, communication, and safety.',
+      link: '/review',
+      cta: 'Leave a Review',
+    },
+    {
+      icon: '🤖',
+      title: 'AI Tenant Advocate',
+      desc: 'Describe your situation and get guidance on your rights, next steps, and template letters citing your state and local laws.',
+      link: '/advocate',
+      cta: 'Talk to Advocate',
+    },
+    {
+      icon: '🚨',
+      title: 'Emergency Guide',
+      desc: 'No heat? Gas leak? Mold? Get legally mandated response deadlines and emergency contacts for your city.',
+      link: '/emergency-guide',
+      cta: 'Get Help Now',
+      urgent: true,
+    },
+    {
+      icon: '📋',
+      title: 'Report an Issue',
+      desc: 'Document health violations with photo evidence. Anonymous reporting available. Generate legal notices.',
+      link: '/report',
+      cta: 'Report Issue',
+    },
+    {
+      icon: '⏱️',
+      title: 'Track Response',
+      desc: 'Monitor your landlord\'s compliance with legal repair deadlines. Document everything.',
+      link: '/tracker',
+      cta: 'Track Now',
+    },
   ];
 
   return (
-    <div className="space-y-14">
-      {/* Boulder Launch Banner */}
-      <Link to="/boulder">
-        <section className="rounded-lg bg-sage-700 p-5 sm:p-6 text-center text-white hover:bg-sage-800 transition-colors cursor-pointer">
-          <p className="text-xs font-medium uppercase tracking-widest text-sage-200 mb-1">🚀 Now Live</p>
-          <h2 className="text-xl sm:text-2xl font-bold">SafeSpace Boulder</h2>
-          <p className="mt-1 text-sage-100 text-sm">Rate your rental, know your rights, hold landlords accountable.</p>
-          <span className="inline-block mt-2 text-sm font-medium text-sage-200 hover:text-white">Explore Boulder →</span>
-        </section>
-      </Link>
-
+    <div className="space-y-16">
       {/* Hero */}
-      <section className="text-center pt-4">
-        <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl">
-          Know your rights. Report violations.
-          <span className="text-sage-600"> Hold landlords accountable.</span>
+      <section className="text-center pt-8 pb-2">
+        <h1 className="text-4xl font-bold tracking-tight text-ink sm:text-5xl lg:text-6xl">
+          Every renter deserves<br />
+          <span className="text-sage-600">to know their rights.</span>
         </h1>
         <p className="mx-auto mt-5 max-w-2xl text-lg text-text-muted leading-relaxed">
-          SafeSpace helps renters in {cities.length} cities understand their rights, document violations, and take action.
+          SafeSpace gives you the laws that protect you, the tools to enforce them,
+          and a community of renters holding landlords accountable — in every US jurisdiction.
         </p>
       </section>
 
       {/* Address Search */}
       <section className="mx-auto max-w-2xl">
+        <div className="text-center mb-4">
+          <h2 className="text-xl font-semibold text-ink">Enter your address</h2>
+          <p className="text-sm text-text-muted mt-1">We'll show your rights, safety data, and reviews for your area.</p>
+        </div>
         <AddressAutocomplete
-          onSelect={() => { setSearchError(''); setUnsupportedCity(null); }}
+          onSelect={() => { setSearchError(''); setResult(null); }}
           onSubmit={async (addr) => {
             setSearching(true);
             setSearchError('');
-            setUnsupportedCity(null);
+            setResult(null);
             try {
-              const result = await validateAddress(addr);
-              if (!result.valid) {
-                setSearchError('Address not found. Please enter a valid street address.');
+              const res = await validateAddress(addr);
+              if (!res.valid) {
+                setSearchError('Address not found. Please enter a valid US street address.');
                 return;
               }
-              if (result.citySlug) {
-                navigate(`/city/${result.citySlug}`);
+              if (res.citySlug) {
+                const city = getCityBySlug(res.citySlug);
+                if (city) {
+                  setResult({
+                    citySlug: res.citySlug,
+                    cityName: city.name,
+                    state: city.stateCode,
+                    address: `${res.address.streetAddress}, ${res.address.city}, ${res.address.state} ${res.address.zipCode}`,
+                    protectionScore: city.keyLaws.length >= 6 ? 7 : city.keyLaws.length >= 4 ? 5 : 3,
+                  });
+                } else {
+                  navigate(`/city/${res.citySlug}`);
+                }
               } else {
-                setUnsupportedCity({ city: result.address.city, state: result.address.state, zip: result.address.zipCode });
+                // Unsupported city — still show what we can
+                setResult({
+                  citySlug: '',
+                  cityName: res.address.city,
+                  state: res.address.state,
+                  address: `${res.address.streetAddress}, ${res.address.city}, ${res.address.state} ${res.address.zipCode}`,
+                  protectionScore: 0,
+                });
               }
             } catch (err) {
               setSearchError(err instanceof Error ? err.message : 'Unable to validate address.');
@@ -75,27 +148,114 @@ export function HomePage() {
           searching={searching}
           error={searchError}
         />
-        {unsupportedCity && (
-          <div className="mt-4">
-            <WaitlistForm city={unsupportedCity.city} state={unsupportedCity.state} zip={unsupportedCity.zip} />
+
+        {/* Combined Safety + Review Result */}
+        {result && (
+          <div className="mt-6 space-y-4">
+            <Card className="!p-5">
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="text-sm font-medium text-text-muted">Results for</p>
+                  <p className="font-semibold text-ink">{result.address}</p>
+                  <p className="text-sm text-sage-600 mt-1">{result.cityName}, {result.state}</p>
+                </div>
+                {result.protectionScore > 0 && (
+                  <SafetyScoreBadge score={result.protectionScore} />
+                )}
+              </div>
+
+              {result.citySlug ? (
+                <div className="mt-5 grid gap-3 sm:grid-cols-3">
+                  <Link to={`/city/${result.citySlug}`}>
+                    <Button className="w-full" size="sm">🛡️ Your Rights</Button>
+                  </Link>
+                  <Link to={`/review?city=${result.citySlug}`}>
+                    <Button variant="secondary" className="w-full" size="sm">⭐ Leave Review</Button>
+                  </Link>
+                  <Link to={`/report?city=${result.citySlug}`}>
+                    <Button variant="secondary" className="w-full" size="sm">📋 Report Issue</Button>
+                  </Link>
+                </div>
+              ) : (
+                <div className="mt-5 space-y-3">
+                  <p className="text-sm text-text-muted">
+                    We don't have full city data for {result.cityName} yet, but you can still:
+                  </p>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <Link to="/review">
+                      <Button className="w-full" size="sm">⭐ Leave a Review</Button>
+                    </Link>
+                    <Link to="/advocate">
+                      <Button variant="secondary" className="w-full" size="sm">🤖 AI Advocate</Button>
+                    </Link>
+                  </div>
+                  <Link to="/know-your-rights">
+                    <p className="text-xs text-sage-600 hover:underline cursor-pointer mt-1">
+                      → View general tenant rights for {result.state}
+                    </p>
+                  </Link>
+                </div>
+              )}
+            </Card>
           </div>
         )}
       </section>
 
-      {/* City Cards Grid */}
+      {/* Stats Bar */}
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+        {stats.map((s) => (
+          <Card key={s.label} className="text-center !p-4">
+            <p className="text-2xl sm:text-3xl font-bold text-sage-700">{s.value}</p>
+            <p className="text-xs text-text-muted mt-1">{s.label}</p>
+          </Card>
+        ))}
+      </section>
+
+      {/* Main Flows */}
       <section>
-        <h2 className="text-2xl font-bold text-ink text-center mb-6">Supported Cities</h2>
+        <h2 className="text-2xl font-bold text-ink text-center mb-2">What SafeSpace Does</h2>
+        <p className="text-center text-text-muted mb-8 max-w-xl mx-auto">
+          Free tools for renters. No paywall, no account required for most features.
+        </p>
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {flows.map((flow) => (
+            <Link key={flow.link} to={flow.link}>
+              <Card hover className="h-full flex flex-col">
+                <div className="mb-3 text-2xl">{flow.icon}</div>
+                <h3 className={`text-lg font-semibold ${flow.urgent ? 'text-danger' : 'text-ink'}`}>
+                  {flow.title}
+                </h3>
+                <p className="mt-2 text-sm text-text-muted leading-relaxed flex-1">{flow.desc}</p>
+                <p className={`mt-3 text-sm font-medium ${flow.urgent ? 'text-danger' : 'text-sage-600'}`}>
+                  {flow.cta} →
+                </p>
+              </Card>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* City Grid */}
+      <section>
+        <h2 className="text-2xl font-bold text-ink text-center mb-2">Cities with Full Coverage</h2>
+        <p className="text-center text-text-muted mb-8 max-w-xl mx-auto">
+          Deep local data — laws, deadlines, enforcement contacts, emergency resources.
+          More cities coming from our 454-jurisdiction research database.
+        </p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {cities.map((city) => (
             <Link key={city.slug} to={`/city/${city.slug}`}>
               <Card hover className="h-full">
-                <h3 className="text-lg font-semibold text-ink">{city.name}, {city.stateCode}</h3>
+                <div className="flex items-start justify-between">
+                  <h3 className="text-lg font-semibold text-ink">{city.name}, {city.stateCode}</h3>
+                  {city.university && (
+                    <span className="text-xs bg-sage-50 text-sage-600 px-2 py-0.5 rounded-full">🎓</span>
+                  )}
+                </div>
                 <p className="mt-1 text-sm text-text-muted">
                   {city.renterPercent}% renters · {city.population.toLocaleString()} pop.
                 </p>
-                <p className="mt-2 text-sm text-sage-700">
-                  {city.keyLaws[0]?.name}
-                </p>
+                <p className="mt-2 text-sm text-sage-700">{city.keyLaws[0]?.name}</p>
                 <p className="mt-2 text-xs font-medium text-sage-600">Explore →</p>
               </Card>
             </Link>
@@ -103,36 +263,52 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* Features Grid */}
-      <section>
-        <h2 className="text-2xl font-bold text-ink text-center mb-6">What SafeSpace Does</h2>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {features.map((feature) => (
-            <Link key={feature.link} to={feature.link}>
-              <Card hover className="h-full">
-                <div className="mb-3 text-2xl">{feature.icon}</div>
-                <h3 className={`text-lg font-semibold ${feature.urgent ? 'text-danger' : 'text-ink'}`}>
-                  {feature.title}
-                </h3>
-                <p className="mt-2 text-sm text-text-muted leading-relaxed">{feature.description}</p>
-              </Card>
-            </Link>
+      {/* How It Works */}
+      <section className="max-w-3xl mx-auto">
+        <h2 className="text-2xl font-bold text-ink text-center mb-8">How It Works</h2>
+        <div className="space-y-6">
+          {[
+            { step: '1', title: 'Enter your address', desc: 'We identify your jurisdiction and pull the specific laws, deadlines, and resources that apply to you.' },
+            { step: '2', title: 'Know your rights', desc: 'See tenant protections in plain English — security deposits, repair deadlines, retaliation prohibitions, rent control status.' },
+            { step: '3', title: 'Take action', desc: 'Report issues with photo evidence, leave landlord reviews, generate legal notices, or talk to our AI Advocate for personalized guidance.' },
+          ].map((item) => (
+            <div key={item.step} className="flex gap-4">
+              <div className="flex-shrink-0 w-10 h-10 rounded-full bg-sage-600 text-white flex items-center justify-center font-bold text-lg">
+                {item.step}
+              </div>
+              <div>
+                <h3 className="font-semibold text-ink">{item.title}</h3>
+                <p className="mt-1 text-sm text-text-muted leading-relaxed">{item.desc}</p>
+              </div>
+            </div>
           ))}
         </div>
       </section>
 
       {/* Emergency CTA */}
       <section className="rounded-lg bg-sage-700 p-8 text-center text-white">
-        <h2 className="text-2xl font-bold">Facing a Health Emergency?</h2>
-        <p className="mt-2 text-sage-100">
-          Some issues require landlord response within 24 hours by law.
+        <h2 className="text-2xl font-bold">Facing an Emergency?</h2>
+        <p className="mt-2 text-sage-100 max-w-lg mx-auto">
+          No heat, gas leak, mold, sewage backup? Your landlord is legally required to respond — often within 24 hours.
         </p>
-        <Link to="/emergency-guide">
-          <Button variant="secondary" size="lg" className="mt-5 border-white/30 bg-white/10 text-white hover:bg-white/20">
-            Get Emergency Guidance Now
-          </Button>
-        </Link>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
+          <Link to="/emergency-guide">
+            <Button variant="secondary" size="lg" className="border-white/30 bg-white/10 text-white hover:bg-white/20">
+              🚨 Emergency Guide
+            </Button>
+          </Link>
+          <Link to="/advocate">
+            <Button variant="secondary" size="lg" className="border-white/30 bg-white/10 text-white hover:bg-white/20">
+              🤖 AI Advocate
+            </Button>
+          </Link>
+        </div>
       </section>
+
+      {/* Legal */}
+      <p className="text-center text-xs text-text-muted pb-4">
+        ⚖️ SafeSpace provides general information, not legal advice. Consult a tenant rights attorney for your specific situation.
+      </p>
     </div>
   );
 }
