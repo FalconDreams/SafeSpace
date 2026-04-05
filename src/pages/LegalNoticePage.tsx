@@ -3,7 +3,7 @@ import { useSearchParams } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import { Button, Card, Input, Textarea, Select } from '../components/common';
 import { AddressAutocomplete } from '../components/features/AddressAutocomplete';
-import { getCityBySlug, getCityDeadlineInfo, getSupportedCities } from '../data/cityRegistry';
+import { getCityBySlug, getCityDeadlineInfo } from '../data/cityRegistry';
 import { validateAddress } from '../lib/addressValidation';
 
 const issueTypes = [
@@ -156,9 +156,6 @@ export function LegalNoticePage() {
   const cityParam = searchParams.get('city') || 'boulder';
   const addressParam = searchParams.get('address') || '';
 
-  const cities = getSupportedCities();
-  const cityOptions = cities.map((c) => ({ value: c.slug, label: `${c.name}, ${c.stateCode}` }));
-
   const [form, setForm] = useState({
     tenantName: '',
     address: addressParam,
@@ -199,19 +196,21 @@ export function LegalNoticePage() {
         return;
       }
 
+      if (!result.citySlug) {
+        setAddressError(`SafeSpace does not yet have a legal notice template for ${result.address.city}, ${result.address.state}.`);
+        return;
+      }
+
+      const citySlug = result.citySlug;
+      const matchedCity = getCityBySlug(citySlug);
       setForm((prev) => ({
         ...prev,
         address: result.normalized,
-        citySlug: result.citySlug || prev.citySlug,
+        citySlug,
       }));
 
-      if (result.citySlug) {
-        const matchedCity = getCityBySlug(result.citySlug);
-        if (matchedCity) {
-          setAddressHelp(`Address verified. Jurisdiction set to ${matchedCity.name}, ${matchedCity.stateCode}.`);
-        }
-      } else {
-        setAddressHelp('Address verified. Select the jurisdiction that should control the legal notice template.');
+      if (matchedCity) {
+        setAddressHelp(`Address verified. Jurisdiction set to ${matchedCity.name}, ${matchedCity.stateCode}.`);
       }
     } catch (err) {
       setAddressError(err instanceof Error ? err.message : 'Unable to validate this address right now.');
@@ -234,7 +233,10 @@ export function LegalNoticePage() {
       <Card>
         <div className="space-y-6">
           <div className="space-y-3">
+            <label className="block text-sm font-medium text-text">Property Address</label>
             <AddressAutocomplete
+              initialValue={form.address}
+              onChangeQuery={(value) => updateField('address', value)}
               onSelect={() => {
                 setAddressError('');
                 setAddressHelp('');
@@ -246,34 +248,16 @@ export function LegalNoticePage() {
               searchingLabel="Validating..."
               placeholder="Start typing the rental address..."
             />
-            <p className="text-sm text-text-muted">
-              Use the same Google-powered address lookup as the homepage, then confirm the jurisdiction for the notice template below.
-            </p>
             {addressHelp && (
               <p className="text-sm text-sage-700">{addressHelp}</p>
             )}
           </div>
-
-          <Select
-            label="City / Jurisdiction"
-            options={cityOptions}
-            value={form.citySlug}
-            onChange={e => updateField('citySlug', e.target.value)}
-          />
 
           <Input
             label="Your Full Name"
             placeholder="Jane Doe"
             value={form.tenantName}
             onChange={e => updateField('tenantName', e.target.value)}
-            required
-          />
-
-          <Input
-            label="Property Address"
-            placeholder={city ? `123 Main St, ${city.name}, ${city.stateCode}` : '123 Main St'}
-            value={form.address}
-            onChange={e => updateField('address', e.target.value)}
             required
           />
 

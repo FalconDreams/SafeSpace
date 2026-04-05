@@ -38,7 +38,7 @@ export function PropertySearch({ onSearch, loading }: PropertySearchProps) {
   const isLoading = loading || validating;
 
   return (
-    <div className="space-y-4">
+    <div>
       <AddressAutocomplete
         onSelect={() => setError('')}
         onSubmit={handleSubmit}
@@ -48,9 +48,6 @@ export function PropertySearch({ onSearch, loading }: PropertySearchProps) {
         searchingLabel="Searching..."
         placeholder="Start typing a property address..."
       />
-      <p className="text-sm text-text-muted">
-        Enter any U.S. street address. We use the same Google-powered suggestions and validation as the homepage.
-      </p>
     </div>
   );
 }

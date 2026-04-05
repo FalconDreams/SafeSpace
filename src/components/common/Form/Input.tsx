@@ -25,7 +25,7 @@ export function Input({ label, error, helperText, className = '', id, ...props }
             : 'border-border focus:border-sage-400 focus:ring-sage-400/20'
         } ${
           isDateInput
-            ? 'py-0 leading-none [&::-webkit-date-and-time-value]:min-h-[48px] [&::-webkit-date-and-time-value]:flex [&::-webkit-date-and-time-value]:items-center [&::-webkit-date-and-time-value]:text-left [&::-webkit-datetime-edit]:flex [&::-webkit-datetime-edit]:h-full [&::-webkit-datetime-edit]:items-center'
+            ? 'py-0 leading-none [&::-webkit-date-and-time-value]:h-full [&::-webkit-date-and-time-value]:min-h-[48px] [&::-webkit-date-and-time-value]:flex [&::-webkit-date-and-time-value]:items-center [&::-webkit-date-and-time-value]:justify-start [&::-webkit-date-and-time-value]:text-left [&::-webkit-datetime-edit]:flex [&::-webkit-datetime-edit]:h-full [&::-webkit-datetime-edit]:items-center [&::-webkit-datetime-edit-fields-wrapper]:flex [&::-webkit-datetime-edit-fields-wrapper]:h-full [&::-webkit-datetime-edit-fields-wrapper]:items-center'
             : ''
         } ${className}`}
         {...props}
