@@ -46,13 +46,13 @@ const COOP_TAGS = [
   'Cliquish governance', 'Arbitrary rule enforcement', 'Transparent finances', 'Democratic process',
 ];
 
-const RATING_STYLES = [
-  { emoji: '😡', bg: 'bg-red-100', border: 'border-red-400', activeBg: 'bg-red-500', text: 'text-white' },
-  { emoji: '😕', bg: 'bg-orange-100', border: 'border-orange-400', activeBg: 'bg-orange-500', text: 'text-white' },
-  { emoji: '😐', bg: 'bg-yellow-100', border: 'border-yellow-400', activeBg: 'bg-yellow-500', text: 'text-white' },
-  { emoji: '🙂', bg: 'bg-lime-100', border: 'border-lime-400', activeBg: 'bg-lime-600', text: 'text-white' },
-  { emoji: '😊', bg: 'bg-green-100', border: 'border-green-400', activeBg: 'bg-green-600', text: 'text-white' },
-];
+const RATING_SCALE = [
+  { value: 1, label: 'Very poor' },
+  { value: 2, label: 'Poor' },
+  { value: 3, label: 'Fair' },
+  { value: 4, label: 'Good' },
+  { value: 5, label: 'Excellent' },
+] as const;
 
 interface ReviewFormProps {
   propertyId?: string;
@@ -362,37 +362,55 @@ export function ReviewForm({ propertyId: initialPropertyId, propertyAddress }: R
       {step === 4 && (
         <div className="space-y-5">
           <h2 className="text-xl font-semibold text-text">Rate your experience</h2>
-          <p className="text-sm text-text-muted">Tap a rating for each category.</p>
+          <p className="text-sm text-text-muted">Rate each category from very poor to excellent.</p>
 
-          <div className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2">
             {CATEGORIES.map((cat) => (
-              <div key={cat.key} className="space-y-2">
+              <div key={cat.key} className="space-y-3 rounded-2xl border border-border bg-surface p-4 shadow-sm">
                 <div>
                   <p className="text-sm font-semibold text-text">{cat.label}</p>
                   <p className="text-xs text-text-muted">{cat.desc}</p>
                 </div>
-                <div className="flex gap-2">
-                  {[1, 2, 3, 4, 5].map((val) => {
-                    const style = RATING_STYLES[val - 1];
-                    const isSelected = ratings[cat.key] === val;
-                    return (
-                      <button
-                        key={val}
-                        type="button"
-                        onClick={() =>
-                          setRatings((prev) => ({ ...prev, [cat.key]: val }))
-                        }
-                        className={`w-10 h-10 sm:w-11 sm:h-11 rounded-full border-2 flex items-center justify-center text-base transition-all duration-200 ${
-                          isSelected
-                            ? `${style.activeBg} ${style.text} ${style.border} scale-110 shadow-md`
-                            : `${style.bg} ${style.border} hover:scale-105`
-                        }`}
-                        aria-label={`${cat.label}: ${val} out of 5`}
-                      >
-                        {style.emoji}
-                      </button>
-                    );
-                  })}
+                <div className="space-y-2">
+                  <div className="grid grid-cols-5 gap-2">
+                    {RATING_SCALE.map(({ value, label }) => {
+                      const val = value;
+                      const isSelected = ratings[cat.key] === val;
+                      return (
+                        <button
+                          key={val}
+                          type="button"
+                          onClick={() =>
+                            setRatings((prev) => ({ ...prev, [cat.key]: val }))
+                          }
+                          className={`flex h-11 items-center justify-center rounded-xl border text-sm font-semibold transition-all duration-200 ${
+                            isSelected
+                              ? 'border-sage-600 bg-sage-600 text-white shadow-sm'
+                              : 'border-stone-300 bg-stone-100 text-stone-700 hover:border-sage-300 hover:bg-stone-50'
+                          }`}
+                          aria-label={`${cat.label}: ${label}`}
+                          aria-pressed={isSelected}
+                        >
+                          {val}
+                        </button>
+                      );
+                    })}
+                  </div>
+                  <div className="grid grid-cols-5 gap-2">
+                    {RATING_SCALE.map(({ value, label }) => {
+                      const isSelected = ratings[cat.key] === value;
+                      return (
+                        <span
+                          key={label}
+                          className={`text-center text-[11px] leading-tight ${
+                            isSelected ? 'font-medium text-sage-700' : 'text-text-muted'
+                          }`}
+                        >
+                          {label}
+                        </span>
+                      );
+                    })}
+                  </div>
                 </div>
               </div>
             ))}
