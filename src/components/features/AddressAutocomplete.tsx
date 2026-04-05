@@ -66,6 +66,9 @@ interface AddressAutocompleteProps {
   onSubmit: (address: string) => void;
   searching?: boolean;
   error?: string;
+  submitLabel?: string;
+  searchingLabel?: string;
+  placeholder?: string;
 }
 
 const GOOGLE_PLACES_KEY = import.meta.env.VITE_GOOGLE_PLACES_API_KEY;
@@ -99,7 +102,15 @@ function loadGoogleMaps(): Promise<void> {
   });
 }
 
-export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: AddressAutocompleteProps) {
+export function AddressAutocomplete({
+  onSelect,
+  onSubmit,
+  searching,
+  error,
+  submitLabel = 'Check Rights',
+  searchingLabel = 'Searching...',
+  placeholder = 'Start typing your address...',
+}: AddressAutocompleteProps) {
   const [query, setQuery] = useState('');
   const [predictions, setPredictions] = useState<GooglePrediction[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
@@ -115,7 +126,7 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
   // Load Google Maps SDK once
   useEffect(() => {
     if (!GOOGLE_PLACES_KEY) {
-      setAutocompleteMessage('Live address suggestions are unavailable right now. You can still type your full address and press Check Rights.');
+      setAutocompleteMessage(`Live address suggestions are unavailable right now. You can still type your full address and press ${submitLabel}.`);
       return;
     }
     loadGoogleMaps().then(() => {
@@ -127,9 +138,9 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
         }
       }
     }).catch(() => {
-      setAutocompleteMessage('Live address suggestions are unavailable right now. You can still type your full address and press Check Rights.');
+      setAutocompleteMessage(`Live address suggestions are unavailable right now. You can still type your full address and press ${submitLabel}.`);
     });
-  }, []);
+  }, [submitLabel]);
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -201,7 +212,7 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
         <div className="flex flex-col gap-2 sm:flex-row">
           <div className="flex-1 relative">
             <Input
-              placeholder="Start typing your address..."
+              placeholder={placeholder}
               value={query}
               onChange={(e) => handleInput(e.target.value)}
               onFocus={() => predictions.length > 0 && setShowDropdown(true)}
@@ -239,7 +250,7 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
             )}
           </div>
           <Button type="submit" disabled={!query.trim() || searching}>
-            {searching ? 'Searching...' : 'Check Rights'}
+            {searching ? searchingLabel : submitLabel}
           </Button>
         </div>
         {error && <p className="text-sm text-danger">{error}</p>}

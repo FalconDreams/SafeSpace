@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { jsPDF } from 'jspdf';
 import { Button, Card, Input, Textarea, Select } from '../components/common';
+import { AddressAutocomplete } from '../components/features/AddressAutocomplete';
 import { getCityBySlug, getCityDeadlineInfo, getSupportedCities } from '../data/cityRegistry';
+import { validateAddress } from '../lib/addressValidation';
 
 const issueTypes = [
   { value: 'no-heat', label: 'No Heat (Emergency)' },
@@ -152,13 +154,14 @@ function generatePDF(data: {
 export function LegalNoticePage() {
   const [searchParams] = useSearchParams();
   const cityParam = searchParams.get('city') || 'boulder';
+  const addressParam = searchParams.get('address') || '';
 
   const cities = getSupportedCities();
   const cityOptions = cities.map((c) => ({ value: c.slug, label: `${c.name}, ${c.stateCode}` }));
 
   const [form, setForm] = useState({
     tenantName: '',
-    address: '',
+    address: addressParam,
     landlordName: '',
     issueType: '',
     description: '',
@@ -166,6 +169,9 @@ export function LegalNoticePage() {
     citySlug: cityParam,
   });
   const [generated, setGenerated] = useState(false);
+  const [searchingAddress, setSearchingAddress] = useState(false);
+  const [addressError, setAddressError] = useState('');
+  const [addressHelp, setAddressHelp] = useState('');
 
   const city = getCityBySlug(form.citySlug);
 
@@ -178,6 +184,40 @@ export function LegalNoticePage() {
     if (!canGenerate) return;
     generatePDF(form);
     setGenerated(true);
+  };
+
+  const handleAddressSubmit = async (inputAddress: string) => {
+    setSearchingAddress(true);
+    setAddressError('');
+    setAddressHelp('');
+
+    try {
+      const result = await validateAddress(inputAddress);
+
+      if (!result.valid) {
+        setAddressError('Address not found. Please enter a valid U.S. street address.');
+        return;
+      }
+
+      setForm((prev) => ({
+        ...prev,
+        address: result.normalized,
+        citySlug: result.citySlug || prev.citySlug,
+      }));
+
+      if (result.citySlug) {
+        const matchedCity = getCityBySlug(result.citySlug);
+        if (matchedCity) {
+          setAddressHelp(`Address verified. Jurisdiction set to ${matchedCity.name}, ${matchedCity.stateCode}.`);
+        }
+      } else {
+        setAddressHelp('Address verified. Select the jurisdiction that should control the legal notice template.');
+      }
+    } catch (err) {
+      setAddressError(err instanceof Error ? err.message : 'Unable to validate this address right now.');
+    } finally {
+      setSearchingAddress(false);
+    }
   };
 
   const deadlineInfo = form.issueType ? getCityDeadlineInfo(form.citySlug, form.issueType) : null;
@@ -193,6 +233,27 @@ export function LegalNoticePage() {
 
       <Card>
         <div className="space-y-6">
+          <div className="space-y-3">
+            <AddressAutocomplete
+              onSelect={() => {
+                setAddressError('');
+                setAddressHelp('');
+              }}
+              onSubmit={handleAddressSubmit}
+              searching={searchingAddress}
+              error={addressError}
+              submitLabel="Use This Address"
+              searchingLabel="Validating..."
+              placeholder="Start typing the rental address..."
+            />
+            <p className="text-sm text-text-muted">
+              Use the same Google-powered address lookup as the homepage, then confirm the jurisdiction for the notice template below.
+            </p>
+            {addressHelp && (
+              <p className="text-sm text-sage-700">{addressHelp}</p>
+            )}
+          </div>
+
           <Select
             label="City / Jurisdiction"
             options={cityOptions}

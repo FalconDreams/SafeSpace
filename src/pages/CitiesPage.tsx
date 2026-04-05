@@ -70,7 +70,7 @@ export function CitiesPage() {
         <select
           value={stateFilter}
           onChange={(e) => setStateFilter(e.target.value)}
-          className="rounded-md border border-border bg-rice px-3 py-2 text-sm text-text"
+          className="h-12 rounded-md border border-border bg-rice px-4 text-sm text-text"
         >
           <option value="">All States</option>
           {statesWithCities.map(s => (
@@ -80,7 +80,7 @@ export function CitiesPage() {
         <select
           value={scoreFilter}
           onChange={(e) => setScoreFilter(e.target.value)}
-          className="rounded-md border border-border bg-rice px-3 py-2 text-sm text-text"
+          className="h-12 rounded-md border border-border bg-rice px-4 text-sm text-text"
         >
           <option value="">All Scores</option>
           <option value="strong">Strong (7-10)</option>

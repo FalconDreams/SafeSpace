@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Card } from '../../common';
 import { decisionTree } from '../../../data/decisionTreeData';
 
-export const DecisionTree: React.FC = () => {
+interface DecisionTreeProps {
+  legalNoticeHref?: string;
+}
+
+export const DecisionTree: React.FC<DecisionTreeProps> = ({ legalNoticeHref = '/legal-notice' }) => {
   const [currentNodeId, setCurrentNodeId] = useState('start');
   const [history, setHistory] = useState<string[]>([]);
 
@@ -78,7 +83,9 @@ export const DecisionTree: React.FC = () => {
             Back
           </Button>
           <Button onClick={reset}>Start Over</Button>
-          <Button variant="primary">Generate Legal Notice</Button>
+          <Link to={legalNoticeHref}>
+            <Button variant="primary">Generate Legal Notice</Button>
+          </Link>
         </div>
       </div>
     );

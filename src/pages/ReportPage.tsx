@@ -198,8 +198,8 @@ export function ReportPage() {
               <Link to="/property-lookup">
                 <Button variant="secondary">View Property</Button>
               </Link>
-              <Link to="/tracker">
-                <Button>Track Response</Button>
+              <Link to={`/legal-notice?address=${encodeURIComponent(form.address)}`}>
+                <Button>Generate Legal Notice</Button>
               </Link>
             </div>
           </div>

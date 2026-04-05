@@ -257,6 +257,9 @@ export function ReviewForm({ propertyId: initialPropertyId, propertyAddress }: R
             onSubmit={handleAddressSubmit}
             searching={searchingAddress}
             error={searchError}
+            submitLabel="Start Review"
+            searchingLabel="Starting..."
+            placeholder="Start typing the rental address..."
           />
         </div>
       )}

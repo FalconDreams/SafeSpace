@@ -67,7 +67,7 @@ export function EmergencyGuidePage() {
         </Card>
       )}
 
-      <DecisionTree />
+      <DecisionTree legalNoticeHref={selectedCity ? `/legal-notice?city=${selectedCity}` : '/legal-notice'} />
 
       <div className="mt-12 border-t border-border pt-8">
         {city ? (

@@ -72,8 +72,8 @@ export function PropertyDetails({
           <Link to={`/report?address=${encodeURIComponent(address)}`}>
             <Button size="sm">Report an Issue</Button>
           </Link>
-          <Link to={`/tracker?address=${encodeURIComponent(address)}`}>
-            <Button size="sm" variant="secondary">Track Response</Button>
+          <Link to={`/legal-notice?address=${encodeURIComponent(address)}`}>
+            <Button size="sm" variant="secondary">Generate Legal Notice</Button>
           </Link>
         </div>
       </div>
