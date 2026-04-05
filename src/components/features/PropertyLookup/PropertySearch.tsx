@@ -104,7 +104,7 @@ export function PropertySearch({ onSearch, loading }: PropertySearchProps) {
           </div>
         )}
         <p className="text-sm text-text-muted">
-          Enter any street address in a supported city. We validate it to keep property records accurate and prevent duplicates.
+          Enter any U.S. street address. We use Google-powered address suggestions and validation to keep property records accurate and prevent duplicates.
         </p>
       </form>
       {unsupportedCity && (

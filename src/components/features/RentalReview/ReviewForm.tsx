@@ -250,7 +250,7 @@ export function ReviewForm({ propertyId: initialPropertyId, propertyAddress }: R
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-text">Where did you live?</h2>
           <p className="text-sm text-text-muted">
-            Search the same way as the homepage. You can review any valid U.S. rental address.
+            Search the same way as the homepage. We use Google-powered address suggestions and validation, and you can review any valid U.S. rental address.
           </p>
           <AddressAutocomplete
             onSelect={() => setSearchError('')}
