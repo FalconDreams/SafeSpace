@@ -147,15 +147,12 @@ export function AdvocatePage() {
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8">
+    <div className="space-y-8">
       {/* Header */}
-      <div className="text-center space-y-3">
-        <h1 className="text-3xl sm:text-4xl font-display font-bold text-sage-800">
-          🛡️ Tenant Advocate
-        </h1>
-        <p className="text-lg text-text-muted max-w-xl mx-auto">
-          Describe your rental situation anywhere in the U.S. and get an analysis of the laws that apply,
-          recommended next steps, and a template letter.
+      <div>
+        <h1 className="text-3xl font-bold text-ink">AI Advocate</h1>
+        <p className="mt-2 text-lg text-text-muted">
+          Describe your rental situation and get a plain-language analysis of the laws that apply, recommended next steps, and a draft letter you can use.
         </p>
       </div>
 
@@ -235,7 +232,7 @@ export function AdvocatePage() {
       )}
 
       {/* Always-visible disclaimer */}
-      <div className="text-center text-xs text-text-muted px-4 pb-8">
+      <div className="text-xs text-text-muted pb-8">
         ⚖️ This is general information, not legal advice. Consult a tenant rights attorney for your situation.
         <br />
         SafeSpace Tenant Advocate is powered by AI and may occasionally produce inaccurate information.
