@@ -1,7 +1,6 @@
 import { useState, useEffect, type FormEvent } from 'react';
 import { Button, Card, Input, Textarea } from '../../common';
 import { ProtectedAction } from '../../auth/ProtectedAction';
-import { ReviewAIHelper } from './ReviewAIHelper';
 import { AddressAutocomplete } from '../AddressAutocomplete';
 import { supabase } from '../../../lib/supabase';
 import { ensureProperty, validateAddress, type AddressValidationResult } from '../../../lib/addressValidation';
@@ -473,14 +472,6 @@ export function ReviewForm({ propertyId: initialPropertyId, propertyAddress }: R
               onChange={(e) => setComment(e.target.value.slice(0, 500))}
               helperText={`${comment.length}/500 characters`}
             />
-            {comment.trim().length > 20 && (
-              <div className="mt-2">
-                <ReviewAIHelper
-                  reviewText={comment}
-                  onAccept={(improved) => setComment(improved.slice(0, 500))}
-                />
-              </div>
-            )}
           </div>
           <div className="flex gap-3">
             <Button variant="ghost" size="sm" onClick={() => setStep(5)}>
