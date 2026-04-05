@@ -35,6 +35,39 @@ export interface AddressValidationResult {
   error?: string;
 }
 
+interface ParsedSingleLineAddress {
+  streetAddress: string;
+  secondaryAddress?: string;
+  city: string;
+  state: string;
+  zipCode?: string;
+}
+
+export function parseSingleLineAddress(input: string): ParsedSingleLineAddress | null {
+  const trimmed = input.trim();
+  if (!trimmed.includes(',')) return null;
+
+  const match = trimmed.match(
+    /^(?<street>.+?),\s*(?<city>[^,]+),\s*(?<state>[A-Za-z]{2})(?:\s+(?<zip>\d{5}(?:-\d{4})?))?\s*$/,
+  );
+
+  if (!match?.groups) return null;
+
+  const street = match.groups.street.trim();
+  const city = match.groups.city.trim();
+  const state = match.groups.state.trim().toUpperCase();
+  const zipCode = match.groups.zip?.trim();
+
+  if (!street || !city || !state) return null;
+
+  return {
+    streetAddress: street,
+    city,
+    state,
+    zipCode,
+  };
+}
+
 /**
  * Validate a street address via the configured address validation provider
  * (currently USPS, with Google Address Validation support available behind the edge function).
@@ -48,6 +81,18 @@ export async function validateAddress(
 ): Promise<AddressValidationResult> {
   const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
   const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
+  const parsedAddress =
+    !secondaryAddress && !city && !state && !zipCode
+      ? parseSingleLineAddress(streetAddress)
+      : null;
+
+  const requestPayload = {
+    streetAddress: parsedAddress?.streetAddress || streetAddress,
+    secondaryAddress: parsedAddress?.secondaryAddress || secondaryAddress || '',
+    city: parsedAddress?.city || city || '',
+    state: parsedAddress?.state || state || '',
+    zipCode: parsedAddress?.zipCode || zipCode || '',
+  };
 
   const resp = await fetch(`${supabaseUrl}/functions/v1/validate-address`, {
     method: 'POST',
@@ -55,13 +100,7 @@ export async function validateAddress(
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${supabaseAnonKey}`,
     },
-    body: JSON.stringify({
-      streetAddress,
-      secondaryAddress: secondaryAddress || '',
-      city: city || '',
-      state: state || '',
-      zipCode: zipCode || '',
-    }),
+    body: JSON.stringify(requestPayload),
   });
 
   if (!resp.ok) {

@@ -75,7 +75,7 @@ let googleMapsLoading = false;
 const loadCallbacks: Array<() => void> = [];
 
 function loadGoogleMaps(): Promise<void> {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     if (googleMapsLoaded) { resolve(); return; }
     loadCallbacks.push(resolve);
     if (googleMapsLoading) return;
@@ -91,6 +91,10 @@ function loadGoogleMaps(): Promise<void> {
     script.src = `https://maps.googleapis.com/maps/api/js?key=${GOOGLE_PLACES_KEY}&libraries=places&callback=initGoogleMaps&loading=async`;
     script.async = true;
     script.defer = true;
+    script.onerror = () => {
+      googleMapsLoading = false;
+      reject(new Error('Google Maps failed to load'));
+    };
     document.head.appendChild(script);
   });
 }
@@ -101,6 +105,7 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
   const [showDropdown, setShowDropdown] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState('');
   const [mapsReady, setMapsReady] = useState(googleMapsLoaded);
+  const [autocompleteMessage, setAutocompleteMessage] = useState('');
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const dummyRef = useRef<HTMLDivElement>(null);
@@ -109,7 +114,10 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
 
   // Load Google Maps SDK once
   useEffect(() => {
-    if (!GOOGLE_PLACES_KEY) return;
+    if (!GOOGLE_PLACES_KEY) {
+      setAutocompleteMessage('Live address suggestions are unavailable right now. You can still type your full address and press Check Rights.');
+      return;
+    }
     loadGoogleMaps().then(() => {
       setMapsReady(true);
       if (window.google?.maps?.places) {
@@ -118,6 +126,8 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
           placesService.current = new window.google.maps.places.PlacesService(dummyRef.current);
         }
       }
+    }).catch(() => {
+      setAutocompleteMessage('Live address suggestions are unavailable right now. You can still type your full address and press Check Rights.');
     });
   }, []);
 
@@ -133,17 +143,25 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
   }, []);
 
   const searchPlaces = useCallback((q: string) => {
-    if (q.length < 3 || !autocompleteService.current) { setPredictions([]); return; }
+    if (q.length < 3 || !autocompleteService.current) {
+      setPredictions([]);
+      setShowDropdown(false);
+      return;
+    }
 
     autocompleteService.current.getPlacePredictions(
       { input: q, componentRestrictions: { country: 'us' }, types: ['address'] },
       (preds, status) => {
         if (status === window.google?.maps.places.PlacesServiceStatus.OK && preds) {
+          setAutocompleteMessage('');
           setPredictions(preds.slice(0, 6));
           setShowDropdown(true);
         } else {
           setPredictions([]);
           setShowDropdown(false);
+          if (q.length >= 5) {
+            setAutocompleteMessage('Address suggestions are temporarily unavailable. Enter the full address and SafeSpace will still validate it when you submit.');
+          }
         }
       }
     );
@@ -152,6 +170,9 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
   const handleInput = (value: string) => {
     setQuery(value);
     setSelectedAddress('');
+    if (!value.trim()) {
+      setAutocompleteMessage('');
+    }
 
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => searchPlaces(value), 200);
@@ -222,8 +243,11 @@ export function AddressAutocomplete({ onSelect, onSubmit, searching, error }: Ad
           </Button>
         </div>
         {error && <p className="text-sm text-danger">{error}</p>}
-        {!mapsReady && !GOOGLE_PLACES_KEY && (
-          <p className="text-xs text-text-muted">Address lookup loading...</p>
+        {autocompleteMessage && (
+          <p className="text-xs text-text-muted">{autocompleteMessage}</p>
+        )}
+        {!mapsReady && GOOGLE_PLACES_KEY && !autocompleteMessage && (
+          <p className="text-xs text-text-muted">Loading live address suggestions...</p>
         )}
       </form>
     </div>
